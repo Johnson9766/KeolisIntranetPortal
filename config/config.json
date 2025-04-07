@@ -1,0 +1,36 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "wp-announcement-widget-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpAnnouncementWidget/WpAnnouncementWidgetWebPart.js",
+          "manifest": "./src/webparts/wpAnnouncementWidget/WpAnnouncementWidgetWebPart.manifest.json"
+        }
+      ]
+    },
+    "wp-news-details-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpNewsDetails/WpNewsDetailsWebPart.js",
+          "manifest": "./src/webparts/wpNewsDetails/WpNewsDetailsWebPart.manifest.json"
+        }
+      ]
+    },
+    "wp-home-widgets-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpHomeWidgets/WpHomeWidgetsWebPart.js",
+          "manifest": "./src/webparts/wpHomeWidgets/WpHomeWidgetsWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "WpAnnouncementWidgetWebPartStrings": "lib/webparts/wpAnnouncementWidget/loc/{locale}.js",
+    "WpNewsDetailsWebPartStrings": "lib/webparts/wpNewsDetails/loc/{locale}.js",
+    "WpHomeWidgetsWebPartStrings": "lib/webparts/wpHomeWidgets/loc/{locale}.js"
+  }
+}

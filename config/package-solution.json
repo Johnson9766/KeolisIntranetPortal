@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "p-577-keolis-mhi-intranet-portal-client-side-solution",
+    "id": "b81eb833-c447-4a15-aae8-0f43512d7d3f",
+    "version": "1.0.0.2",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "p-577-keolis-mhi-intranet-portal description"
+      },
+      "longDescription": {
+        "default": "p-577-keolis-mhi-intranet-portal description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "p-577-keolis-mhi-intranet-portal Feature",
+        "description": "The feature that activates elements of the p-577-keolis-mhi-intranet-portal solution.",
+        "id": "b671e801-1c6b-46d5-9ef5-ab03145151aa",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/p-577-keolis-mhi-intranet-portal.sppkg"
+  }
+}

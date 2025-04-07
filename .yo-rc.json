@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": false,
+    "nodeVersion": "16.20.2",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.18.2",
+    "libraryName": "p-577-keolis-mhi-intranet-portal",
+    "libraryId": "b81eb833-c447-4a15-aae8-0f43512d7d3f",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "p-577-keolis-mhi-intranet-portal",
+    "solutionShortDescription": "p-577-keolis-mhi-intranet-portal description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
