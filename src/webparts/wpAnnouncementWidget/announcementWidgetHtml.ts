@@ -74,7 +74,13 @@ export default class announcementHtml{
 
 
               public static allElementsHtml = 
-   `          <div class="announcement-wrapper w-100 float-start mt-4 bg-white p-4">
+   `         
+    <div class="main-wrapper min-h-screen-container">
+    <div class="w-100 float-start home-page">
+      <div class="container container-keolis px-3 px-lg-4 clearfix">
+        <div class="w-100 float-start my-5">
+          <p class="section-title w-100 float-start">Welcome Lubna!</p>
+           <div class="announcement-wrapper w-100 float-start mt-4 bg-white p-4">
             <div class="row gy-5">
               <div class="col-12 col-lg-7">
                 <div class="w-100 float-start position-relative">
@@ -169,6 +175,10 @@ export default class announcementHtml{
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
 
