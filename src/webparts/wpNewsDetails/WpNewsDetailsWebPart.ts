@@ -206,6 +206,12 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
             let createdDate = new Date(createdDateString);
             let date = this.formatDate(createdDate)
             // let time = this.formatTime(createdDate);
+
+            // Reading Time Calculation
+            const eventDetailsText = item.MainContent || '';
+            const wordCount = eventDetailsText.trim().split(/\s+/).length;
+            const readingSpeedWPM = 200;
+            const estimatedReadingTimeMin:any = Math.ceil(wordCount / readingSpeedWPM);
     
             // console.log(time)
             // // Replace placeholder with actual data for main Section image
@@ -215,6 +221,7 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
               .replace("__KEY_DATA_TITLE__", item.Title)
               .replace("__KEY_URL_IMG__",fileName)
               .replace("__KEY_PUBLISHED_DATE__", date)
+              .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
               .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
 
               let content = this._getFormattedText(item.MainContent);

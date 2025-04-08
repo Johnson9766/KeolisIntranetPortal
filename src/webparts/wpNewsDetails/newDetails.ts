@@ -11,7 +11,7 @@ export default class secNewsDetails{
                           </div>
                           <div class="d-flex align-items-center gap-2">
                             <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/time.png"/>
-                            <span class="text-sm keolis-text-color-1">2min</span>
+                            <span class="text-sm keolis-text-color-1">__KEY_READINGTIME_TIME__ min</span>
                         </div>
                       </div>
                   </div>

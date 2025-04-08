@@ -25,12 +25,57 @@
           "manifest": "./src/webparts/wpHomeWidgets/WpHomeWidgetsWebPart.manifest.json"
         }
       ]
+    },
+    "wp-news-listing-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpNewsListing/WpNewsListingWebPart.js",
+          "manifest": "./src/webparts/wpNewsListing/WpNewsListingWebPart.manifest.json"
+        }
+      ]
+    },
+    "wp-events-listing-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpEventsListing/WpEventsListingWebPart.js",
+          "manifest": "./src/webparts/wpEventsListing/WpEventsListingWebPart.manifest.json"
+        }
+      ]
+    },
+    "wp-event-details-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpEventDetails/WpEventDetailsWebPart.js",
+          "manifest": "./src/webparts/wpEventDetails/WpEventDetailsWebPart.manifest.json"
+        }
+      ]
+    },
+    "wp-anno-listing-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpAnnoListing/WpAnnoListingWebPart.js",
+          "manifest": "./src/webparts/wpAnnoListing/WpAnnoListingWebPart.manifest.json"
+        }
+      ]
+    },
+    "wp-anno-details-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpAnnoDetails/WpAnnoDetailsWebPart.js",
+          "manifest": "./src/webparts/wpAnnoDetails/WpAnnoDetailsWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
   "localizedResources": {
     "WpAnnouncementWidgetWebPartStrings": "lib/webparts/wpAnnouncementWidget/loc/{locale}.js",
     "WpNewsDetailsWebPartStrings": "lib/webparts/wpNewsDetails/loc/{locale}.js",
-    "WpHomeWidgetsWebPartStrings": "lib/webparts/wpHomeWidgets/loc/{locale}.js"
+    "WpHomeWidgetsWebPartStrings": "lib/webparts/wpHomeWidgets/loc/{locale}.js",
+    "WpNewsListingWebPartStrings": "lib/webparts/wpNewsListing/loc/{locale}.js",
+    "WpEventsListingWebPartStrings": "lib/webparts/wpEventsListing/loc/{locale}.js",
+    "WpEventDetailsWebPartStrings": "lib/webparts/wpEventDetails/loc/{locale}.js",
+    "WpAnnoListingWebPartStrings": "lib/webparts/wpAnnoListing/loc/{locale}.js",
+    "WpAnnoDetailsWebPartStrings": "lib/webparts/wpAnnoDetails/loc/{locale}.js"
   }
 }
