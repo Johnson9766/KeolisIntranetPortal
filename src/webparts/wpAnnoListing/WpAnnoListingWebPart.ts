@@ -6,6 +6,7 @@ import {
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import type { IReadonlyTheme } from '@microsoft/sp-component-base';
 // import { escape } from '@microsoft/sp-lodash-subset';
+import {SPComponentLoader} from '@microsoft/sp-loader'
 
 // import styles from './WpAnnoListingWebPart.module.scss';
 import * as strings from 'WpAnnoListingWebPartStrings';
@@ -28,11 +29,13 @@ export interface ISPList {
 } 
 
 export default class WpAnnoListingWebPart extends BaseClientSideWebPart<IWpAnnoListingWebPartProps> {
-
+  private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
   private listName:string='Announcements';
 
   public async render(): Promise<void> {
     this.domElement.innerHTML = AnnoListing.allElementsHtml;
+    this.loadCSS();
+
     let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=*,Created,Author/Title&$expand=Author/Id&$orderby=SortOrder asc,Created desc&$filter=ActiveStatus eq 1`;
     await this._renderListAsync(apiUrl);   
   }
@@ -125,6 +128,36 @@ export default class WpAnnoListingWebPart extends BaseClientSideWebPart<IWpAnnoL
 
     return formattedDate;
   }
+
+
+  private loadHome():void{
+
+    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+  }
+ 
+
+private loadCSS(): void {
+    // Load CSS files
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
+
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/event.css`);
+
+    // Load home.js after CSS files are loaded
+        setTimeout(this.loadHome,1000);
+
+}
 
 
 

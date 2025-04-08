@@ -33,7 +33,9 @@ export interface ISPList {
   LinkIcon:any;//QuickLink
   NewsImage:any;//News
   AnnouncementImage:any;
- 
+  LinkURL:{
+    Url:any;
+  }
   FileLeafRef:any;
   FileDirRef:any;
   ServerRelativeUrl:any;
@@ -68,8 +70,11 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
 
 
   public async render(): Promise <void>  {
-
-    announcementHtml.allElementsHtml = announcementHtml.allElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl); 
+    const siteUrl = this.context.pageContext.site.absoluteUrl; 
+    announcementHtml.allElementsHtml = announcementHtml.allElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
+    .replace("__KEY_URL_ANNOLISTING__",`${siteUrl}/SitePages/AnnoListing.aspx`)
+    .replace("__KEY_URL_NEWSLISTING__",`${siteUrl}/SitePages/NewsListing.aspx`)
+    .replace("__KEY_URL_EVENTSLISTING__",`${siteUrl}/SitePages/EventsListing.aspx`); 
     this.domElement.innerHTML = announcementHtml.allElementsHtml;
     this.loadCSS();
 
@@ -232,6 +237,7 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
           .replace("__KEY_DATA_DESC__", item.Description)
           .replace("__KEY_DATA_TITLE__", item.Title)
           .replace("__KEY_URL_IMG__",fileName)
+          .replace("__KEY_URL_DETAILSPAGE__",`${siteUrl}/SitePages/AnnoDetails.aspx?&AnnoID=${item.Id}`)
           // .replace("__KEY_DATA_PUBLISHEDBY__", item.Author.Title)
           // .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
 
@@ -304,6 +310,7 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
         //   .replace("__KEY_DATA_DESC__", item.Description)
           .replace("__KEY_DATA_TITLE__", item.Title)
           .replace("__KEY_URL_IMGICON__",fileName)
+          .replace("__KEY_URL_LINK__", item.LinkURL.Url || "#")
         //   .replace("__KEY_DATA_PUBLISHEDBY__", item.Author.Title)
         //   .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
 

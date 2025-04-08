@@ -9,6 +9,7 @@ import type { IReadonlyTheme } from '@microsoft/sp-component-base';
 // import styles from './WpEventsListingWebPart.module.scss';
 import * as strings from 'WpEventsListingWebPartStrings';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
+import {SPComponentLoader} from '@microsoft/sp-loader'
 
 import EventsListing from './eventsListing';
 
@@ -30,12 +31,12 @@ export interface ISPList {
 
 export default class WpEventsListingWebPart extends BaseClientSideWebPart<IWpEventsListingWebPartProps> {
 
-  // private _ResourceUrl: string = '/sites/KeolisIntranetDev/SiteAssets/resources';
+   private _ResourceUrl: string = '/sites/KeolisIntranetDev/SiteAssets/resources';
   private listName:string='UpcomingEvents';
 
   public async render(): Promise<void> {
+    this.loadCSS();
     this.domElement.innerHTML = EventsListing.allElementsHtml;
-
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
     const formattedDate = currentDate.toISOString();
@@ -160,6 +161,35 @@ export default class WpEventsListingWebPart extends BaseClientSideWebPart<IWpEve
     return `${hours}:${minutesStr} ${ampm}`;
   }
 
+  
+  private loadHome():void{
+
+    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+  }
+ 
+
+private loadCSS(): void {
+    // Load CSS files
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
+
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/event.css`);
+
+    // Load home.js after CSS files are loaded
+        setTimeout(this.loadHome,1000);
+
+}
 
 
   private _getEnvironmentMessage(): Promise<string> {

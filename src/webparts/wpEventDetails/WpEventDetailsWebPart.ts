@@ -10,6 +10,7 @@ import type { IReadonlyTheme } from '@microsoft/sp-component-base';
 // import styles from './WpEventDetailsWebPart.module.scss';
 import * as strings from 'WpEventDetailsWebPartStrings';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
+import {SPComponentLoader} from '@microsoft/sp-loader'
 
 import EventDetails from './eventDetails';
 
@@ -37,7 +38,7 @@ export default class WpEventDetailsWebPart extends BaseClientSideWebPart<IWpEven
 
   public async render(): Promise<void> {
     this.domElement.innerHTML = EventDetails.allElementsHtml;
-
+    this.loadCSS();
     const queryStringParams: any = this.getQueryStringParameters();
     // Access specific query string parameters
     let ID: string = queryStringParams['EventID'];
@@ -188,6 +189,36 @@ export default class WpEventDetailsWebPart extends BaseClientSideWebPart<IWpEven
     
     return `${hours}:${minutesStr} ${ampm}`;
   }
+
+    private loadHome():void{
+  
+      SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+      SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+    }
+   
+  
+  private loadCSS(): void {
+      // Load CSS files
+      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+      SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+      SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+      SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+      SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
+  
+      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/event.css`);
+  
+      // Load home.js after CSS files are loaded
+          setTimeout(this.loadHome,1000);
+  
+  }
+  
 
   protected onInit(): Promise<void> {
     return this._getEnvironmentMessage().then(message => {
