@@ -65,6 +65,14 @@
           "manifest": "./src/webparts/wpAnnoDetails/WpAnnoDetailsWebPart.manifest.json"
         }
       ]
+    },
+    "wp-terms-and-conditions-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpTermsAndConditions/WpTermsAndConditionsWebPart.js",
+          "manifest": "./src/webparts/wpTermsAndConditions/WpTermsAndConditionsWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
@@ -76,6 +84,7 @@
     "WpEventsListingWebPartStrings": "lib/webparts/wpEventsListing/loc/{locale}.js",
     "WpEventDetailsWebPartStrings": "lib/webparts/wpEventDetails/loc/{locale}.js",
     "WpAnnoListingWebPartStrings": "lib/webparts/wpAnnoListing/loc/{locale}.js",
-    "WpAnnoDetailsWebPartStrings": "lib/webparts/wpAnnoDetails/loc/{locale}.js"
+    "WpAnnoDetailsWebPartStrings": "lib/webparts/wpAnnoDetails/loc/{locale}.js",
+    "WpTermsAndConditionsWebPartStrings": "lib/webparts/wpTermsAndConditions/loc/{locale}.js"
   }
 }

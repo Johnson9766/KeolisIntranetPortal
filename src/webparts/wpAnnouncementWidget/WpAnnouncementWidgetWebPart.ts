@@ -33,7 +33,9 @@ export interface ISPList {
   LinkIcon:any;//QuickLink
   NewsImage:any;//News
   AnnouncementImage:any;
- 
+  LinkURL:{
+    Url:any;
+  }
   FileLeafRef:any;
   FileDirRef:any;
   ServerRelativeUrl:any;
@@ -68,8 +70,12 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
 
 
   public async render(): Promise <void>  {
-
-    announcementHtml.allElementsHtml = announcementHtml.allElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl); 
+    const siteUrl = this.context.pageContext.site.absoluteUrl; 
+    announcementHtml.allElementsHtml = announcementHtml.allElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
+    .replace("__KEY_URL_ANNOLISTING__",`${siteUrl}/SitePages/AnnoListing.aspx`)
+    .replace("__KEY_URL_NEWSLISTING__",`${siteUrl}/SitePages/NewsListing.aspx`)
+    .replace("__KEY_URL_EVENTSLISTING__",`${siteUrl}/SitePages/EventsListing.aspx`)
+    .replace("__KEY_URL_PHOTOVDOLISTING__",`${siteUrl}/SitePages/PhotoVideoListing.aspx`); 
     this.domElement.innerHTML = announcementHtml.allElementsHtml;
     this.loadCSS();
 
@@ -232,6 +238,7 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
           .replace("__KEY_DATA_DESC__", item.Description)
           .replace("__KEY_DATA_TITLE__", item.Title)
           .replace("__KEY_URL_IMG__",fileName)
+          .replace("__KEY_URL_DETAILSPAGE__",`${siteUrl}/SitePages/AnnoDetails.aspx?&AnnoID=${item.Id}`)
           // .replace("__KEY_DATA_PUBLISHEDBY__", item.Author.Title)
           // .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
 
@@ -304,6 +311,7 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
         //   .replace("__KEY_DATA_DESC__", item.Description)
           .replace("__KEY_DATA_TITLE__", item.Title)
           .replace("__KEY_URL_IMGICON__",fileName)
+          .replace("__KEY_URL_LINK__", item.LinkURL.Url || "#")
         //   .replace("__KEY_DATA_PUBLISHEDBY__", item.Author.Title)
         //   .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
 
@@ -419,32 +427,42 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
 
         let singlePhotosVideosHTMLElement:any = '';
 
-        // Check if the file is an image or video based on its extension
-        if (GlobalImageExtensions.AllImageExtensions.some(imageExt => imageExt.ImageExtension === fileExtension)) {
+        // // Check if the file is an image or video based on its extension
+        // if (GlobalImageExtensions.AllImageExtensions.some(imageExt => imageExt.ImageExtension === fileExtension)) {
                            
-          singlePhotosVideosHTMLElement = announcementHtml.imageGallerySingleElement;
-        } else if (GlobalVideoExtensions.AllVideoExtensions.some(videoExt => videoExt.VideoExtension === fileExtension)) {
+        //   singlePhotosVideosHTMLElement = homeWidgetsHtml.imageGallerySingleElement;
+        // } else if (GlobalVideoExtensions.AllVideoExtensions.some(videoExt => videoExt.VideoExtension === fileExtension)) {
       
-          singlePhotosVideosHTMLElement = announcementHtml.videoGallerySingleElement;
-        }else  singlePhotosVideosHTMLElement = announcementHtml.defaultImageGallerySingleElement
+        //   singlePhotosVideosHTMLElement = homeWidgetsHtml.videoGallerySingleElement;
+        // }else  singlePhotosVideosHTMLElement = homeWidgetsHtml.defaultImageGallerySingleElement
 
-        // Replace placeholder with actual data for main Section image
-        singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement
-          .replace("__KEY_URL_IMGVID__",serverRelativeUrl)
-          // .replace("__KEY_DATA_PUBLISHEDBY__", item.Author.Title)
-          .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
-
-          
-        if(index === 0){
-          singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement.replace("__KEY_CLASS_LARGEIMG__","gallery-grid-img-lg")
+        // // Replace placeholder with actual data for main Section image
+        // singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement
+        //   .replace("__KEY_URL_IMGVID__",serverRelativeUrl)
+        //   // .replace("__KEY_DATA_PUBLISHEDBY__", item.Author.Title)
+        //   .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
+        const isImage = GlobalImageExtensions.AllImageExtensions.some(imageExt => imageExt.ImageExtension.toLowerCase() === fileExtension);
+        const isVideo = GlobalVideoExtensions.AllVideoExtensions.some(videoExt => videoExt.VideoExtension.toLowerCase() === fileExtension);
+      
+        if (isImage) {
+          singlePhotosVideosHTMLElement = announcementHtml.imageGallerySingleElement
+            .replace("__KEY_URL_IMGVID__", serverRelativeUrl);
+        } else if (isVideo) {
+          singlePhotosVideosHTMLElement = announcementHtml.videoGallerySingleElement
+            .replace("__KEY_URL_VIDGallery__", serverRelativeUrl);
+        } else {
+          singlePhotosVideosHTMLElement = announcementHtml.defaultImageGallerySingleElement
+            .replace("__KEY_URL_RESOURCE__", this._ResourceUrl);
         }
-
-        allPhotosVideosElements += singlePhotosVideosHTMLElement;
-
-        // console.log(allPhotosVideosElements);
-      
-      
-      });
+          
+          if (index === 0) {
+            singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement.replace("__KEY_CLASS_LARGEIMG__", "gallery-grid-img-lg");
+          } else {
+            singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement.replace("__KEY_CLASS_LARGEIMG__", "");
+          }
+    
+          allPhotosVideosElements += singlePhotosVideosHTMLElement;
+        });
     } catch (error) {
       // Handle error gracefully
       console.error('Error rendering Photos and Videos:', error); 
@@ -540,7 +558,7 @@ private getMonth(date: Date): string {
           .replace("__KEY_ID_NEWS__",item.Id)
           .replace("__KEY_DATA_STARTTIME__", startTime)
           .replace("__KEY_DATA_ENDTIME__", endTime)
-
+          .replace("__KEY_URL_EVENTDETAILS__",`${siteUrl}/SitePages/EventDetails.aspx?&EventID=${item.Id}`)
           .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
 
           
