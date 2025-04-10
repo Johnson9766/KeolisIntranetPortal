@@ -143,7 +143,7 @@ export default class announcementHtml{
               <div class="col-12 col-lg-7">
                 <div class="w-100 float-start d-flex justify-content-between gap-2 align-items-center">
                   <p class="section-title float-start">Video & Photo Gallery</p>
-                  <a href="#" class="view-all-link text-sm font-normal text-color-primary-300 text-decoration-none">View
+                  <a href="__KEY_URL_PHOTOVDOLISTING__" class="view-all-link text-sm font-normal text-color-primary-300 text-decoration-none">View
                     All</a>
                 </div>
                 <div class="w-100 float-start mt-4">

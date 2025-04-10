@@ -31,7 +31,7 @@ export interface ISPList {
 
 export default class WpEventsListingWebPart extends BaseClientSideWebPart<IWpEventsListingWebPartProps> {
 
-   private _ResourceUrl: string = '/sites/KeolisIntranetDev/SiteAssets/resources';
+   private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
   private listName:string='UpcomingEvents';
 
   public async render(): Promise<void> {
