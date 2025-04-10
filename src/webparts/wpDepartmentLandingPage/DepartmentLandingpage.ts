@@ -3,7 +3,7 @@ export default class DepartmentLandingPage{
     public static _SiteUrl:string = window.location.origin;
 
          public static AnnouncementHtml:string=` 
-        <a href="news-details.html" class="swiper-slide announcement-dept-box d-flex flex-column">
+        <a href="/sites/__KEY_SITE_NAME__/SitePages/DeptAnnoDetails.aspx?&AnnoID=__KEY_ID_ANNO__" class="swiper-slide announcement-dept-box d-flex flex-column">
         <img class="w-100 announcement-dept-img" src="__KEY_ANNO_IMG__" />
         <div class="d-flex flex-column gap-2 announcement-dept-details text-color-primary-300">
         <span class="text-sm font-normal">__KEY_DATE_TIME__</span>
@@ -66,7 +66,7 @@ export default class DepartmentLandingPage{
           <div class="w-100 float-start mt-5">
             <div class="w-100 float-start d-flex justify-content-between gap-2 align-items-center">
               <p class="section-title float-start">Announcemnts</p>
-              <a href="news.html" class="view-all-link text-sm font-normal text-color-primary-300 text-decoration-none">View
+              <a href="/sites/__KEY_SITE_NAME__/SitePages/DeptAnnoListing.aspx" class="view-all-link text-sm font-normal text-color-primary-300 text-decoration-none">View
                 All</a>
             </div>
             <div class="w-100 float-start announcement-dept-swiper swiper mt-4">

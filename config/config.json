@@ -113,6 +113,22 @@
           "manifest": "./src/webparts/wpTermsAndConditions/WpTermsAndConditionsWebPart.manifest.json"
         }
       ]
+    },
+    "wp-dept-anno-listing-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpDeptAnnoListing/WpDeptAnnoListingWebPart.js",
+          "manifest": "./src/webparts/wpDeptAnnoListing/WpDeptAnnoListingWebPart.manifest.json"
+        }
+      ]
+    },
+    "wp-dept-anno-details-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpDeptAnnoDetails/WpDeptAnnoDetailsWebPart.js",
+          "manifest": "./src/webparts/wpDeptAnnoDetails/WpDeptAnnoDetailsWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
@@ -130,6 +146,8 @@
     "WpDepartmentPhotosAndvideosListingWebPartStrings": "lib/webparts/wpDepartmentPhotosAndvideosListing/loc/{locale}.js",
     "WpDepartmentNewsListingWebPartStrings": "lib/webparts/wpDepartmentNewsListing/loc/{locale}.js",
     "WpDepartmentNewsDetailsWebPartStrings": "lib/webparts/wpDepartmentNewsDetails/loc/{locale}.js",
-    "WpTermsAndConditionsWebPartStrings": "lib/webparts/wpTermsAndConditions/loc/{locale}.js"
+    "WpTermsAndConditionsWebPartStrings": "lib/webparts/wpTermsAndConditions/loc/{locale}.js",
+    "WpDeptAnnoListingWebPartStrings": "lib/webparts/wpDeptAnnoListing/loc/{locale}.js",
+    "WpDeptAnnoDetailsWebPartStrings": "lib/webparts/wpDeptAnnoDetails/loc/{locale}.js"
   }
 }
