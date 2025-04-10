@@ -146,8 +146,7 @@ this.domElement.innerHTML = finalHtml;
             })
           : "";
   
-        // Set default image first
-        let imageUrl = `${this._ResourceUrl}/assets/img/default-thumbnail.jpg`;
+        let imageUrl = `${this._ResourceUrl}/images/department/dept-avatar.png`;
   
         try {
           const itemId = item.Id;
@@ -167,6 +166,9 @@ this.domElement.innerHTML = finalHtml;
           .replace("__KEY_ANNO_IMG__", imageUrl)
           .replace("__KEY_DATE_TIME__", formattedDate)
           .replace("__KEY_TITLE__", title)
+          .replace("__KEY_ID_ANNO__",item.Id.toString())
+          .replace("__KEY_SITE_NAME__",this.siteName)
+
 
   
         listItemsHtml += announcementHtml;
@@ -193,8 +195,7 @@ this.domElement.innerHTML = finalHtml;
   
       for (const item of items) {
         const title = item.Title || "No Title";
-        // Parse and construct image URL
-        let imageUrl = `${this._ResourceUrl}/assets/img/default-thumbnail.jpg`; // fallback
+        let imageUrl = `${this._ResourceUrl}/images/department/dept-avatar.png`; 
         try {
           const itemId = item.Id;
           const attachmentBaseUrl = `${siteUrl}/Lists/DepartmentNews/Attachments/${itemId}/`;
@@ -210,8 +211,7 @@ this.domElement.innerHTML = finalHtml;
         
         // Format date and time
         const createdDate = new Date(item.Created);
-        const date = this.formatDate(createdDate); // assumes you have this helper
-        // const time = this.formatTime(createdDate); // assumes you have this helper
+        const date = this.formatDate(createdDate); 
         const fullDateTime = `${date} `;
        
 
@@ -326,16 +326,7 @@ private loadCSS(): void {
 
 }
   
-  // private _getFormattedText(text: string): string { 
 
-  //   const tempElement = document.createElement("div"); 
-
-  //   tempElement.innerHTML = text || ""; 
-
-  //   return tempElement.innerText.trim(); 
-
-  // } 
-  //  // Function to format the date as dd mon yyyy
   private formatDate(date: Date): string {
     const options: Intl.DateTimeFormatOptions = {
       day: '2-digit',
@@ -364,21 +355,6 @@ private loadCSS(): void {
     return formattedDate;
   }
 
-  // //  // Function to format time in hh:mm AM/PM format
-  //  private  formatTime(date: Date): string {
-  //   let hours = date.getHours();
-  //   let minutes = date.getMinutes();
-  //   const ampm = hours >= 12 ? 'PM' : 'AM';
-    
-  //   // Convert hours from 24-hour to 12-hour format
-  //   hours = hours % 12;
-  //   hours = hours ? hours : 12; // The hour '0' should be '12'
-    
-  //   // Pad minutes with leading zero if needed
-  //   let minutesStr = minutes < 10 ? '0' + minutes.toString() : minutes.toString();  // Ensure minutes is a string
-    
-  //   return `${hours}:${minutesStr} ${ampm}`;
-  // }
 
 // @ts-ignore
   protected get dataVersion(): Version {
