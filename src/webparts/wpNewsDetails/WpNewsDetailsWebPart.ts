@@ -294,6 +294,7 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
             .replace("__KEY_DATA_TITLE__", item.Title)
             .replace("__KEY_URL_IMG__", fileName)
             .replace("__KEY_PUBLISHED_DATE__", date)
+            .replace("__KEY_URL_NEWSDETAILS__",`${siteUrl}/SitePages/NewsDetails.aspx?&NewsID=${item.ID}`);
         
           allElementsRemainingNewsHtml += singleElementRemainingNewsHtml;
         })

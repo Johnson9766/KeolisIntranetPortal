@@ -13,7 +13,7 @@ import * as strings from 'WpAnnouncementWidgetWebPartStrings';
 import announcementHtml from './announcementWidgetHtml';
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import {SPComponentLoader} from '@microsoft/sp-loader'
+// import {SPComponentLoader} from '@microsoft/sp-loader'
 
 import GlobalImageExtensions from '../GlobalImageExtensions';
 import GlobalVideoExtensions from '../GlobalVideoExtensions';
@@ -77,7 +77,7 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
     .replace("__KEY_URL_EVENTSLISTING__",`${siteUrl}/SitePages/EventsListing.aspx`)
     .replace("__KEY_URL_PHOTOVDOLISTING__",`${siteUrl}/SitePages/PhotoVideoListing.aspx`); 
     this.domElement.innerHTML = announcementHtml.allElementsHtml;
-    this.loadCSS();
+    //this.loadCSS();
 
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
@@ -558,7 +558,7 @@ private getMonth(date: Date): string {
           .replace("__KEY_ID_NEWS__",item.Id)
           .replace("__KEY_DATA_STARTTIME__", startTime)
           .replace("__KEY_DATA_ENDTIME__", endTime)
-
+          .replace("__KEY_URL_EVENTDETAILS__",`${siteUrl}/SitePages/EventDetails.aspx?&EventID=${item.Id}`)
           .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
 
           
@@ -589,33 +589,33 @@ private getMonth(date: Date): string {
 
 
 
-  private loadHome():void{
+//   private loadHome():void{
 
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
-  }
+//     SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+//     SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+//   }
  
 
-private loadCSS(): void {
-    // Load CSS files
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
+// private loadCSS(): void {
+//     // Load CSS files
+//     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+//     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+//     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+//     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+//     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+//     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
 
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+//     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+//     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+//     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+//     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+//     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+//     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
 
-    // Load home.js after CSS files are loaded
-        setTimeout(this.loadHome,1000);
+//     // Load home.js after CSS files are loaded
+//         setTimeout(this.loadHome,1000);
 
-}
+// }
 
 
 

@@ -105,6 +105,14 @@
           "manifest": "./src/webparts/wpDepartmentNewsDetails/WpDepartmentNewsDetailsWebPart.manifest.json"
         }
       ]
+    },
+    "wp-terms-and-conditions-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpTermsAndConditions/WpTermsAndConditionsWebPart.js",
+          "manifest": "./src/webparts/wpTermsAndConditions/WpTermsAndConditionsWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
@@ -121,6 +129,7 @@
     "WpDepartmentLandingPageWebPartStrings": "lib/webparts/wpDepartmentLandingPage/loc/{locale}.js",
     "WpDepartmentPhotosAndvideosListingWebPartStrings": "lib/webparts/wpDepartmentPhotosAndvideosListing/loc/{locale}.js",
     "WpDepartmentNewsListingWebPartStrings": "lib/webparts/wpDepartmentNewsListing/loc/{locale}.js",
-    "WpDepartmentNewsDetailsWebPartStrings": "lib/webparts/wpDepartmentNewsDetails/loc/{locale}.js"
+    "WpDepartmentNewsDetailsWebPartStrings": "lib/webparts/wpDepartmentNewsDetails/loc/{locale}.js",
+    "WpTermsAndConditionsWebPartStrings": "lib/webparts/wpTermsAndConditions/loc/{locale}.js"
   }
 }

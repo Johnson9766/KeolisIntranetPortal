@@ -30,7 +30,7 @@ export default class secNewsDetails{
          public static singleElementNewsDescription:string=` <p>__KEY_DATA_NEWSDECRIPTION__</p>
         `
 
-    public static remainingNewsHtml:string=`<div class="col-12 col-lg-4">
+    public static remainingNewsHtml:string=`<div class="col-12 col-lg-4" onclick="window.location.href='__KEY_URL_NEWSDETAILS__'" style="cursor: pointer;">
                 <div class="w-100 float-start news-centre-box d-flex flex-column">
                   <img class="w-100 news-centre-img" src="__KEY_URL_IMG__" />
                   <div class="d-flex flex-column gap-2 news-centre-details text-color-primary-300">
