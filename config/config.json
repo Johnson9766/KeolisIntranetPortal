@@ -25,12 +25,57 @@
           "manifest": "./src/webparts/wpHomeWidgets/WpHomeWidgetsWebPart.manifest.json"
         }
       ]
+    },
+    "wp-photoand-vedio-listings-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpPhotoandVedioListings/WpPhotoandVedioListingsWebPart.js",
+          "manifest": "./src/webparts/wpPhotoandVedioListings/WpPhotoandVedioListingsWebPart.manifest.json"
+        }
+      ]
+    },
+    "wp-department-landing-page-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpDepartmentLandingPage/WpDepartmentLandingPageWebPart.js",
+          "manifest": "./src/webparts/wpDepartmentLandingPage/WpDepartmentLandingPageWebPart.manifest.json"
+        }
+      ]
+    },
+    "wp-department-photos-andvideos-listing-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpDepartmentPhotosAndvideosListing/WpDepartmentPhotosAndvideosListingWebPart.js",
+          "manifest": "./src/webparts/wpDepartmentPhotosAndvideosListing/WpDepartmentPhotosAndvideosListingWebPart.manifest.json"
+        }
+      ]
+    },
+    "wp-department-news-listing-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpDepartmentNewsListing/WpDepartmentNewsListingWebPart.js",
+          "manifest": "./src/webparts/wpDepartmentNewsListing/WpDepartmentNewsListingWebPart.manifest.json"
+        }
+      ]
+    },
+    "wp-department-news-details-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/wpDepartmentNewsDetails/WpDepartmentNewsDetailsWebPart.js",
+          "manifest": "./src/webparts/wpDepartmentNewsDetails/WpDepartmentNewsDetailsWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
   "localizedResources": {
     "WpAnnouncementWidgetWebPartStrings": "lib/webparts/wpAnnouncementWidget/loc/{locale}.js",
     "WpNewsDetailsWebPartStrings": "lib/webparts/wpNewsDetails/loc/{locale}.js",
-    "WpHomeWidgetsWebPartStrings": "lib/webparts/wpHomeWidgets/loc/{locale}.js"
+    "WpHomeWidgetsWebPartStrings": "lib/webparts/wpHomeWidgets/loc/{locale}.js",
+    "WpPhotoandVedioListingsWebPartStrings": "lib/webparts/wpPhotoandVedioListings/loc/{locale}.js",
+    "WpDepartmentLandingPageWebPartStrings": "lib/webparts/wpDepartmentLandingPage/loc/{locale}.js",
+    "WpDepartmentPhotosAndvideosListingWebPartStrings": "lib/webparts/wpDepartmentPhotosAndvideosListing/loc/{locale}.js",
+    "WpDepartmentNewsListingWebPartStrings": "lib/webparts/wpDepartmentNewsListing/loc/{locale}.js",
+    "WpDepartmentNewsDetailsWebPartStrings": "lib/webparts/wpDepartmentNewsDetails/loc/{locale}.js"
   }
 }

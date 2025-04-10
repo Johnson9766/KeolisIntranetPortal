@@ -421,32 +421,42 @@ export default class WpHomeWidgetsWebPart extends BaseClientSideWebPart<IWpHomeW
 
         let singlePhotosVideosHTMLElement:any = '';
 
-        // Check if the file is an image or video based on its extension
-        if (GlobalImageExtensions.AllImageExtensions.some(imageExt => imageExt.ImageExtension === fileExtension)) {
+        // // Check if the file is an image or video based on its extension
+        // if (GlobalImageExtensions.AllImageExtensions.some(imageExt => imageExt.ImageExtension === fileExtension)) {
                            
-          singlePhotosVideosHTMLElement = homeWidgetsHtml.imageGallerySingleElement;
-        } else if (GlobalVideoExtensions.AllVideoExtensions.some(videoExt => videoExt.VideoExtension === fileExtension)) {
+        //   singlePhotosVideosHTMLElement = homeWidgetsHtml.imageGallerySingleElement;
+        // } else if (GlobalVideoExtensions.AllVideoExtensions.some(videoExt => videoExt.VideoExtension === fileExtension)) {
       
-          singlePhotosVideosHTMLElement = homeWidgetsHtml.videoGallerySingleElement;
-        }else  singlePhotosVideosHTMLElement = homeWidgetsHtml.defaultImageGallerySingleElement
+        //   singlePhotosVideosHTMLElement = homeWidgetsHtml.videoGallerySingleElement;
+        // }else  singlePhotosVideosHTMLElement = homeWidgetsHtml.defaultImageGallerySingleElement
 
-        // Replace placeholder with actual data for main Section image
-        singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement
-          .replace("__KEY_URL_IMGVID__",serverRelativeUrl)
-          // .replace("__KEY_DATA_PUBLISHEDBY__", item.Author.Title)
-          .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
-
-          
-        if(index === 0){
-          singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement.replace("__KEY_CLASS_LARGEIMG__","gallery-grid-img-lg")
+        // // Replace placeholder with actual data for main Section image
+        // singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement
+        //   .replace("__KEY_URL_IMGVID__",serverRelativeUrl)
+        //   // .replace("__KEY_DATA_PUBLISHEDBY__", item.Author.Title)
+        //   .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
+        const isImage = GlobalImageExtensions.AllImageExtensions.some(imageExt => imageExt.ImageExtension.toLowerCase() === fileExtension);
+        const isVideo = GlobalVideoExtensions.AllVideoExtensions.some(videoExt => videoExt.VideoExtension.toLowerCase() === fileExtension);
+      
+        if (isImage) {
+          singlePhotosVideosHTMLElement = homeWidgetsHtml.imageGallerySingleElement
+            .replace("__KEY_URL_IMGVID__", serverRelativeUrl);
+        } else if (isVideo) {
+          singlePhotosVideosHTMLElement = homeWidgetsHtml.videoGallerySingleElement
+            .replace("__KEY_URL_VIDGallery__", serverRelativeUrl);
+        } else {
+          singlePhotosVideosHTMLElement = homeWidgetsHtml.defaultImageGallerySingleElement
+            .replace("__KEY_URL_RESOURCE__", this._ResourceUrl);
         }
-
-        allPhotosVideosElements += singlePhotosVideosHTMLElement;
-
-        // console.log(allPhotosVideosElements);
-      
-      
-      });
+          
+          if (index === 0) {
+            singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement.replace("__KEY_CLASS_LARGEIMG__", "gallery-grid-img-lg");
+          } else {
+            singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement.replace("__KEY_CLASS_LARGEIMG__", "");
+          }
+    
+          allPhotosVideosElements += singlePhotosVideosHTMLElement;
+        });
     } catch (error) {
       // Handle error gracefully
       console.error('Error rendering Photos and Videos:', error); 
