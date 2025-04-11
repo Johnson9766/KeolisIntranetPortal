@@ -9,15 +9,10 @@ export default class deptAnnoDetails{
                   <div class="w-100 float-start d-flex flex-column">
                       <p class="event-details-para-title mb-2 text-size-32 font-semibold text-color-primary-300">__KEY_DATA_TITLE__</p>
                       <div class="d-flex align-items-center flex-wrap gap-3">
-                          <div class="d-flex flex-column gap-1">
-                            <div class="d-flex align-items-center gap-2">
-                                <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/edit.png">
-                                <span class="text-sm keolis-text-color-1">StartDate - __KEY_FULL_START_DATE__</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2 ms-4">
-                                <span class="text-sm keolis-text-color-1" style="padding-left: 3px;">EndDate - __KEY_FULL_END_DATE__</span>
-                            </div>
-                            </div>
+                          <div class="d-flex align-items-center gap-2">
+                              <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/edit.png"/>
+                              <span class="text-sm keolis-text-color-1">__KEY_PUBLISHED_DATE__</span>
+                          </div>
 
                           <div class="d-flex align-items-center gap-2">
                             <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/time.png"/>

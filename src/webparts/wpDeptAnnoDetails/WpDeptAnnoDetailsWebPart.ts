@@ -20,13 +20,12 @@ export interface ISPLists {
   value: ISPList[];
 }
 export interface ISPList {
-  ID: string;
+  Id: string;
   Title: string;
-  EventPhoto:any;
-  EventLocation:string;
-  EventDetails:string;
-  StartDate:any;
-  EndDate:any;
+  AnnouncementImage:any;
+  Description:string;
+  Created:any;
+
 } 
 
 export default class WpDeptAnnoDetailsWebPart extends BaseClientSideWebPart<IWpDeptAnnoDetailsWebPartProps> {
@@ -40,7 +39,7 @@ export default class WpDeptAnnoDetailsWebPart extends BaseClientSideWebPart<IWpD
     this.loadCSS();
     const queryStringParams: any = this.getQueryStringParameters();
     // Access specific query string parameters
-    let ID: string = queryStringParams['EventID'];
+    let ID: string = queryStringParams['AnnoID'];
 
     // Api for retrieve the items from the "News" list
     let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items(${ID})?$select=*`;
@@ -67,33 +66,26 @@ export default class WpDeptAnnoDetailsWebPart extends BaseClientSideWebPart<IWpD
     
           const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
         let singleElementHtml = deptAnnoDetails.singleElementHtml;
-                      const itemId = item.ID; // Ensure you have the correct item ID
+                      const itemId = item.Id; // Ensure you have the correct item ID
                       const attachmentBaseUrl = `${siteUrl}/Lists/DepartmentAnnouncement/Attachments/${itemId}/`;
-                      const pictureData = JSON.parse(item.EventPhoto);// Parse the JSON string to extract the filename
+                      const pictureData = JSON.parse(item.AnnouncementImage);// Parse the JSON string to extract the filename
                       const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
-                      let startDateString = item.StartDate;
-                      let endDateString = item.EndDate; 
-                      let startDate = new Date(startDateString); // Convert the approved date string to a Date object
-                      let endDate = new Date(endDateString);
-                      let formattedStartDate = this.formatDate(startDate);
-                      let formattedEndDate = this.formatDate(endDate);
-                      let startTime = this.formatTime(startDate);
-                      let endTime = this.formatTime(endDate);
-                      console.log(startTime + endTime);
+      
+                      let createdDateString = item.Created;
+                      let createdDate = new Date(createdDateString); // Convert the approved date string to a Date object
+                      let formattedCreatedDate = this.formatDate(createdDate);
 
                       // Reading Time Calculation
-                      const eventDetailsText = item.EventDetails || '';
+                      const eventDetailsText = item.Description || '';
                       const wordCount = eventDetailsText.trim().split(/\s+/).length;
                       const readingSpeedWPM = 200;
                       const estimatedReadingTimeMin:any = Math.ceil(wordCount / readingSpeedWPM);
           
                       singleElementHtml = singleElementHtml.replace("__KEY_DATA_TITLE__", item.Title)
-                        .replace("__KEY_START_DATE__", formattedStartDate)
                         .replace("__KEY_URL_IMG__",fileName)
-                        .replace("__KEY_DATA_EVENTDETAILS__",item.EventDetails)
+                        .replace("__KEY_DATA_EVENTDETAILS__",item.Description)
                         .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
-                        .replace("__KEY_FULL_START_DATE__",formattedStartDate + ", " + startTime)
-                        .replace("__KEY_FULL_END_DATE__",formattedEndDate + ", " + endTime)
+                        .replace("__KEY_PUBLISHED_DATE__", formattedCreatedDate)
                         .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
                       allElementsHtml += singleElementHtml;
           
@@ -173,21 +165,7 @@ export default class WpDeptAnnoDetailsWebPart extends BaseClientSideWebPart<IWpD
     return formattedDate;
   }
 
-  // Function to format time in hh:mm AM/PM format
-  private  formatTime(date: Date): string {
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    
-    // Convert hours from 24-hour to 12-hour format
-    hours = hours % 12;
-    hours = hours ? hours : 12; // The hour '0' should be '12'
-    
-    // Pad minutes with leading zero if needed
-    let minutesStr = minutes < 10 ? '0' + minutes.toString() : minutes.toString();  // Ensure minutes is a string
-    
-    return `${hours}:${minutesStr} ${ampm}`;
-  }
+
 
     private loadHome():void{
   

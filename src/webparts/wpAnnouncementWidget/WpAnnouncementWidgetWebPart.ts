@@ -95,7 +95,7 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
 
     ];
     await this._renderListAsync(apiUrls);
-
+    this.loadHomeJS();
   }
 
 
@@ -618,7 +618,21 @@ private getMonth(date: Date): string {
 // }
 
 
+private loadHomeJS(): void {
+  // Remove existing instance if it exists
+  const existingScript = document.querySelector('script[src*="home.js"]');
+  if (existingScript) {
+      existingScript.remove();
+  }
 
+  // Create new script element with cache busting
+  const script = document.createElement('script');
+  script.src = `${this.context.pageContext.site.absoluteUrl}/SiteAssets/resources/js/home.js?t=${new Date().getTime()}`;
+  script.async = true;
+  
+  // Add to head
+  document.head.appendChild(script);
+}
 
   protected onInit(): Promise<void> {
     return this._getEnvironmentMessage().then(message => {
