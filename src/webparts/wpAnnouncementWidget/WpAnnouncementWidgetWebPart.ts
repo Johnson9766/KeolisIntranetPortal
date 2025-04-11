@@ -71,7 +71,9 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
 
   public async render(): Promise <void>  {
     const siteUrl = this.context.pageContext.site.absoluteUrl; 
+    const userName = await this._getCurrentUserDisplayName();
     announcementHtml.allElementsHtml = announcementHtml.allElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
+    .replace("Welcome Lubna!", `Welcome ${userName}!`)
     .replace("__KEY_URL_ANNOLISTING__",`${siteUrl}/SitePages/AnnoListing.aspx`)
     .replace("__KEY_URL_NEWSLISTING__",`${siteUrl}/SitePages/NewsListing.aspx`)
     .replace("__KEY_URL_EVENTSLISTING__",`${siteUrl}/SitePages/EventsListing.aspx`)
@@ -96,6 +98,20 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
     ];
     await this._renderListAsync(apiUrls);
 
+  }
+
+  private async _getCurrentUserDisplayName(): Promise<string> {
+    try {
+      const response = await this.context.spHttpClient.get(
+        `${this.context.pageContext.web.absoluteUrl}/_api/web/currentuser`,
+        SPHttpClient.configurations.v1
+      );
+      const user = await response.json();
+      return user.Title || 'User';
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      return 'User';
+    }
   }
 
 
