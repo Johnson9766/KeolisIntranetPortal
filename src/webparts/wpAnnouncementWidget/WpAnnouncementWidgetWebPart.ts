@@ -73,7 +73,7 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
     const siteUrl = this.context.pageContext.site.absoluteUrl; 
     const userName = await this._getCurrentUserDisplayName();
     announcementHtml.allElementsHtml = announcementHtml.allElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
-    .replace("Welcome Lubna!", `Welcome ${userName}!`)
+    .replace("Welcome User!", `Welcome ${userName}!`)
     .replace("__KEY_URL_ANNOLISTING__",`${siteUrl}/SitePages/AnnoListing.aspx`)
     .replace("__KEY_URL_NEWSLISTING__",`${siteUrl}/SitePages/NewsListing.aspx`)
     .replace("__KEY_URL_EVENTSLISTING__",`${siteUrl}/SitePages/EventsListing.aspx`)
