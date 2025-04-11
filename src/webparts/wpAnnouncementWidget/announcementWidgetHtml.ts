@@ -63,7 +63,7 @@ export default class announcementHtml{
       `;
 
 
-              public static singleUpcomingEventElement=` <div class="event-list-row d-flex">
+              public static singleUpcomingEventElement=` <div class="event-list-row d-flex" onclick="window.location.href='__KEY_URL_EVENTDETAILS__'" style="cursor: pointer;">
                   <div
                     class="event-list-date d-flex flex-column align-items-center justify-content-center flex-shrink-0">
                     <span class="keolis-text-secondary font-semibold text-size-32">__KEY_DATA_DAY__</span>
