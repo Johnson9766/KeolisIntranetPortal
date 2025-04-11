@@ -54,7 +54,7 @@ export default class announcementHtml{
 
              public static videoGallerySingleElement = `
         <div class="w-100 float-start gallery-grid-img __KEY_CLASS_LARGEIMG__ d-flex align-items-center justify-content-center overflow-hidden">
-          <video autoplay loop muted playsinline class="w-100 h-100" style="object-fit: cover;">
+          <video controls autoplay loop muted poster="" playsinline class="w-100 h-100" style="object-fit: cover;">
             <source src="__KEY_URL_VIDGallery__" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
@@ -171,6 +171,13 @@ export default class announcementHtml{
             </div>
           </div>
         </div>
+
+        <div class="w-100 float-start mt-5">
+            <p class="section-title w-100 float-start">Yammer feeds</p>
+            <div class="w-100 float-start mt-4">
+            </div>
+          </div>
+
       </div>
 
     </div>
