@@ -19,7 +19,7 @@ export default class WpPhotoAndVideoListingsWebPart{
      
      <div class="col-12 col-md-6 col-lg-4">
                 <div class="w-100 float-start photo-listing-box d-flex flex-column">
-                  <video class="photo-listing-img" autoplay="" loop="" muted="" poster="">
+                  <video class="photo-listing-img" controls autoplay loop muted poster="">
                     <source src="__KEY_URL_VIDEOGALLERY__" type="video/mp4">
                     Your browser does not support the video tag.
                   </video>
@@ -64,16 +64,14 @@ export default class WpPhotoAndVideoListingsWebPart{
       <div class="modal-header border-top-0 d-flex justify-content-end border-bottom-0">
         <img src="__KEY_URL_RESOURCE__/images/icons/close-modal.png" data-bs-dismiss="modal" class="float-start cursor-pointer modal-close-icon" />
       </div>
-      <div class="modal-body text-center">
-        <!-- Add ID here -->
-        <img id="modal-image-preview" src="" />
+     <div class="modal-body text-center" id="modal-media-container">
+          <!-- Media will be injected here -->
 
-
-         <video id="modal-video-preview" class="photo-listing-img" autoplay="" loop="" muted="" poster="">
-   <source src="" type="video/mp4">
-    Your browser does not support the video tag.
-   </video>
-      </div>
+        </div>
+        <!-- <div class="w-100 float-start text-center pb-4">
+        <img src="__KEY_URL_RESOURCE__/images/icons/readmore.png" alt="Read More" class="modal-read-more-img cursor-pointer" />
+      </div>-->
+      
     </div>
   </div>
 </div>

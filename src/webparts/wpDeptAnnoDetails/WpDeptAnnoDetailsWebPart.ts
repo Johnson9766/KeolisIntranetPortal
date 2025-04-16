@@ -40,12 +40,11 @@ export default class WpDeptAnnoDetailsWebPart extends BaseClientSideWebPart<IWpD
     this.loadCSS();
     const queryStringParams: any = this.getQueryStringParameters();
     // Access specific query string parameters
-    let ID: string = queryStringParams['EventID'];
+    let ID: string = queryStringParams['AnnoID']|| "6";
 
-    // Api for retrieve the items from the "News" list
-    let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items(${ID})?$select=*`;
-    await this._renderListAsync(apiUrl); 
-
+    console.log("id",ID)
+    const apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items(${ID})?$select=*`;
+    await this._renderListAsync(apiUrl);
   }
 
   // render list asynchronously

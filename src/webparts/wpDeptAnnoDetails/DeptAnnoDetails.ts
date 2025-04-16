@@ -57,7 +57,7 @@ public static allElementsHtml:string=`
    public static noRecord: string = `
    <div class="col-12 py-3 col-list-row col-news-list news-details-page">
      <div class="news-details-info">
-       <p>No News details to display</p>
+       <p>No Announcement details to display</p>
      </div>
    </div> `;
 }
