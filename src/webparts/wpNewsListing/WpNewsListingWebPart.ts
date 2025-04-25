@@ -54,7 +54,7 @@ export default class WpNewsListingWebPart extends BaseClientSideWebPart<IWpNewsL
     }
 
     // Api for retrieve the items from the "News" list
-    let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=*,ID,Title,MainContent,Created,Author/Title,Author/Department&$expand=Author`;
+    let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=*,ID,Title,MainContent,Created,Author/Title,Author/Department&$expand=Author&$orderby=Created desc`;
     await this._renderListAsync(apiUrl); 
   }
 
@@ -94,13 +94,18 @@ export default class WpNewsListingWebPart extends BaseClientSideWebPart<IWpNewsL
             const itemId = item.ID; // Ensure you have the correct item ID
             const attachmentBaseUrl = `${siteUrl}/Lists/NewsCenter/Attachments/${itemId}/`;
             const pictureData = JSON.parse(item.NewsImage);// Parse the JSON string to extract the filename
-            const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
+            let imageUrl = `${this._ResourceUrl}/images/default_home/news.png`; 
+
+            if (pictureData?.fileName) {
+              imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
+            }
+            //const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
             let createdDateString = item.Created;
             let createdDate = new Date(createdDateString); // Convert the approved date string to a Date object
             let date = this.formatDate(createdDate);
 
             singleElementHtml = singleElementHtml.replace("__KEY_DATA_TITLE__", item.Title)
-              .replace("__KEY_URL_IMG__",fileName)
+              .replace("__KEY_URL_IMG__",imageUrl)
               .replace("__KEY_PUBLISHED_DATE__", date)
               .replace("__KEY_URL_DETAILSPAGE__", `${siteUrl}/SitePages/NewsDetails.aspx?&NewsID=${item.ID}`)
             allElementsHtml += singleElementHtml;

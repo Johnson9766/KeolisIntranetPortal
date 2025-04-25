@@ -24,13 +24,160 @@ export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClien
   public listName = "DepartmentPhotosAndVideosGallery";
   public ImgList: HTMLDivElement;
   public allElementsHtml:any=""
-
+  private siteName: string = 'IntranetPortal-Dev';
+  
   protected onInit(): Promise<void> {
   
       //this._FirstSite = this.properties.firstSite || this._FirstSite;
       return super.onInit();   
    
   }  
+
+  private _bindMediaClickHandlers(): void {
+    const mediaElements = this.domElement.querySelectorAll('.photo-listing-img');
+  
+    const swiperSlides: string[] = [];
+    mediaElements.forEach(el => {
+      const src = el.getAttribute('src') || '';
+      if (el.tagName.toLowerCase() === 'img') {
+        swiperSlides.push(`<div class="swiper-slide"><img src="${src}" class="img-fluid swiper-media" /></div>`);
+      } else if (el.tagName.toLowerCase() === 'video') {
+        const source = el.querySelector('source');
+        const videoSrc = source ? source.getAttribute('src') : '';
+        swiperSlides.push(`
+          <div class="swiper-slide">
+            <video class="swiper-media" controls autoplay loop muted style="max-height: 80vh; width: 100%;">
+              <source src="${videoSrc}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        `);
+      }
+    });
+  
+    mediaElements.forEach((el, index) => {
+      el.addEventListener('click', () => {
+        const swiperContainerHtml = `
+          <div class="swiper mySwiper position-relative">
+            <style>
+              .swiper-button-next::after,
+              .swiper-button-prev::after {
+                display: none !important;
+              }
+              .swiper-slide {
+                display: none; /* Hide all slides by default */
+                justify-content: center;
+                align-items: center;
+                height: 80vh;
+              }
+              .swiper-slide:nth-child(${index + 1}) {
+                display: flex !important; /* Show only the clicked slide initially */
+              }
+              .swiper-media {
+                max-width: 90%;
+                max-height: 80vh;
+                object-fit: contain;
+              }
+              /* This style will be removed once Swiper initializes */
+              .swiper-initialized .swiper-slide {
+                display: flex !important;
+              }
+            </style>
+            <div class="swiper-wrapper">
+              ${swiperSlides.join('')}
+            </div>
+            <div class="swiper-button-prev" style="top: 50%; transform: translateY(-50%); width: auto; height: auto; background: none;">
+              <img src="${this._ResourceUrl}/images/icons/readmore.png" alt="Prev" style="cursor: pointer; transform: rotate(180deg); opacity: 0.7;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" />
+            </div>
+            <div class="swiper-button-next" style="top: 50%; transform: translateY(-50%); width: auto; height: auto; background: none;">
+              <img src="${this._ResourceUrl}/images/icons/readmore.png" alt="Next" style="cursor: pointer; opacity: 0.7;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" />
+            </div>
+          </div>
+        `;
+  
+        const container = document.getElementById('modal-media-container');
+        if (container) {
+          container.innerHTML = swiperContainerHtml;
+        }
+  
+        const modalEl = document.getElementById('photo-video-modal');
+        if (modalEl) {
+          modalEl.classList.add('show');
+          modalEl.style.display = 'block';
+          modalEl.removeAttribute('aria-hidden');
+          modalEl.setAttribute('aria-modal', 'true');
+          document.body.classList.add('modal-open');
+          document.body.insertAdjacentHTML('beforeend', '<div class="modal-backdrop fade show"></div>');
+        }
+  
+        // Initialize Swiper
+        setTimeout(() => {
+          const swiperInstance = new (window as any).Swiper('.mySwiper', {
+            loop: false,
+            initialSlide: index,
+            navigation: {
+              nextEl: '.swiper-button-next',
+              prevEl: '.swiper-button-prev',
+            },
+            on: {
+              init: function () {
+                toggleNavButtons(this);
+              },
+              slideChange: function () {
+                toggleNavButtons(this);
+              }
+            }
+          });
+  
+          function toggleNavButtons(swiperInstance: any) {
+            const prevBtn = document.querySelector('.swiper-button-prev') as HTMLElement;
+            const nextBtn = document.querySelector('.swiper-button-next') as HTMLElement;
+        
+            if (!prevBtn || !nextBtn) return;
+        
+            const isFirst = swiperInstance.activeIndex === 0;
+            const isLast = swiperInstance.activeIndex === swiperInstance.slides.length - 1;
+        
+            prevBtn.style.display = isFirst ? 'none' : 'block';
+            nextBtn.style.display = isLast ? 'none' : 'block';
+          }
+  
+          // Add keyboard event listener
+          document.addEventListener('keydown', handleKeyDown);
+  
+          function handleKeyDown(e: KeyboardEvent) {
+            if (e.key === 'ArrowLeft') {
+              swiperInstance.slidePrev();
+            } else if (e.key === 'ArrowRight') {
+              swiperInstance.slideNext();
+            } else if (e.key === 'Escape') {
+              closeModal();
+            }
+          }
+  
+          // Clean up event listener when modal is closed
+          const closeModal = () => {
+            const modalEl = document.getElementById('photo-video-modal');
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (modalEl) {
+              modalEl.classList.remove('show');
+              modalEl.style.display = 'none';
+              modalEl.setAttribute('aria-hidden', 'true');
+              modalEl.removeAttribute('aria-modal');
+              document.body.classList.remove('modal-open');
+            }
+            if (backdrop) backdrop.remove();
+            document.removeEventListener('keydown', handleKeyDown);
+          };
+  
+          // Update close button to also remove the keydown listener
+          document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(closeBtn => {
+            closeBtn.addEventListener('click', closeModal);
+          });
+        }, 100);
+      });
+    });
+  }
  
   private async _renderListItems(): Promise<void> {
     try {
@@ -42,8 +189,12 @@ export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClien
   }
   private async _getLibraryFiles(): Promise<ISPList[]> {
     const items: ISPList[] = [];
+    const queryStringParams: any = this.getQueryStringParameters();
+    // Access specific query string parameters
+    let dept: string = queryStringParams['dept'];
+
     try {
-      const apiUrl =` ${this.context.pageContext.web.absoluteUrl}/_api/web/lists/getbytitle('${this.listName}')/items?$select=FileLeafRef,File/ServerRelativeUrl&$expand=File`;
+      const apiUrl =` ${this.context.pageContext.web.absoluteUrl}/${dept}/_api/web/lists/getbytitle('${this.listName}')/items?$select=FileLeafRef,File/ServerRelativeUrl&$expand=File&$orderby=Created desc`;
       const response: SPHttpClientResponse = await this.context.spHttpClient.get(
         apiUrl,
         SPHttpClient.configurations.v1
@@ -127,18 +278,21 @@ export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClien
  
   public render(): void {
     this.loadCSS(); 
+    const queryStringParams: any = this.getQueryStringParameters();
+    // Access specific query string parameters
+    let dept: string = queryStringParams['dept'];
 
     try {
 
-      DepatmentPhotoandVideo.html = DepatmentPhotoandVideo.html.replace(    new RegExp("__KEY_URL_RESOURCE__", 'g'),
-      this._ResourceUrl
-    );
+      DepatmentPhotoandVideo.html = DepatmentPhotoandVideo.html.replace(    new RegExp("__KEY_URL_RESOURCE__", 'g'),this._ResourceUrl)
+      .replace("__KEY_DEPT_NAME__",dept).replace("__KEY_SITE_NAME__",this.siteName);
       this.domElement.innerHTML = DepatmentPhotoandVideo.html;  
       this.ImgList = this.domElement.querySelector("#deptPhotoVideoListings") as HTMLDivElement;
       console.log("DepatmentPhotoandVideo element:", this.ImgList);
 
      
       this._renderListItems();    
+      setTimeout(() => this._bindMediaClickHandlers(), 500);
       
     } catch (error) {
       console.log(error);
@@ -189,83 +343,83 @@ export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClien
   //     }
   //   }
   // });
-  document.addEventListener("click", function (event) {
-    const target = event.target as HTMLElement;
-    if (!target || !target.classList.contains("photo-listing-img")) return;
+  // document.addEventListener("click", function (event) {
+  //   const target = event.target as HTMLElement;
+  //   if (!target || !target.classList.contains("photo-listing-img")) return;
   
-    const modal = document.getElementById("photo-video-modal");
-    const modalImg = document.getElementById("modal-image-preview") as HTMLImageElement;
-    const modalVideo = document.getElementById("modal-video-preview") as HTMLVideoElement;
+  //   const modal = document.getElementById("photo-video-modal");
+  //   const modalImg = document.getElementById("modal-image-preview") as HTMLImageElement;
+  //   const modalVideo = document.getElementById("modal-video-preview") as HTMLVideoElement;
   
-    const tag = target.tagName.toLowerCase();
-    if (tag === "img" && modalImg) {
-      const imageUrl = (target as HTMLImageElement).src;
-      modalImg.src = imageUrl;
-      modalImg.style.display = "block";
-      modalImg.style.margin = "0 auto";
-      modalImg.style.maxWidth = "100%";
-      modalImg.style.maxHeight = "80vh";
-      modalImg.style.display = "block";
+  //   const tag = target.tagName.toLowerCase();
+  //   if (tag === "img" && modalImg) {
+  //     const imageUrl = (target as HTMLImageElement).src;
+  //     modalImg.src = imageUrl;
+  //     modalImg.style.display = "block";
+  //     modalImg.style.margin = "0 auto";
+  //     modalImg.style.maxWidth = "100%";
+  //     modalImg.style.maxHeight = "80vh";
+  //     modalImg.style.display = "block";
   
-      if (modalVideo) {
-        modalVideo.pause();
-        modalVideo.style.display = "none";
-      }
-    }
+  //     if (modalVideo) {
+  //       modalVideo.pause();
+  //       modalVideo.style.display = "none";
+  //     }
+  //   }
   
-    if (tag === "video" && modalVideo) {
-      const videoSource = (target as HTMLVideoElement).querySelector("source");
-      const videoUrl = videoSource?.getAttribute("src") || "";
-      modalVideo.src = videoUrl;
-      modalVideo.style.display = "block";
-      modalVideo.style.margin = "0 auto";
-      modalVideo.style.maxWidth = "100%";
-      modalVideo.style.maxHeight = "80vh";
-      modalVideo.play();
+  //   if (tag === "video" && modalVideo) {
+  //     const videoSource = (target as HTMLVideoElement).querySelector("source");
+  //     const videoUrl = videoSource?.getAttribute("src") || "";
+  //     modalVideo.src = videoUrl;
+  //     modalVideo.style.display = "block";
+  //     modalVideo.style.margin = "0 auto";
+  //     modalVideo.style.maxWidth = "100%";
+  //     modalVideo.style.maxHeight = "80vh";
+  //     modalVideo.play();
   
-      if (modalImg) {
-        modalImg.style.display = "none";
-      }
-    }
+  //     if (modalImg) {
+  //       modalImg.style.display = "none";
+  //     }
+  //   }
   
-    if (modal) {
-      modal.classList.add("show");
-      modal.style.display = "block";
-      modal.removeAttribute("aria-hidden");
-      modal.setAttribute("aria-modal", "true");
+  //   if (modal) {
+  //     modal.classList.add("show");
+  //     modal.style.display = "block";
+  //     modal.removeAttribute("aria-hidden");
+  //     modal.setAttribute("aria-modal", "true");
   
-      // Add backdrop manually
-      let backdrop = document.createElement("div");
-      backdrop.className = "modal-backdrop fade show";
-      backdrop.id = "custom-modal-backdrop";
-      document.body.appendChild(backdrop);
+  //     // Add backdrop manually
+  //     let backdrop = document.createElement("div");
+  //     backdrop.className = "modal-backdrop fade show";
+  //     backdrop.id = "custom-modal-backdrop";
+  //     document.body.appendChild(backdrop);
   
-      document.body.classList.add("modal-open");
-    }
-  });
+  //     document.body.classList.add("modal-open");
+  //   }
+  // });
   
   // Handle modal close (clicking the close icon)
-  document.addEventListener("click", function (event) {
-    const target = event.target as HTMLElement;
-    if (target && target.classList.contains("modal-close-icon")) {
-      const modal = document.getElementById("photo-video-modal");
-      const backdrop = document.getElementById("custom-modal-backdrop");
+  // document.addEventListener("click", function (event) {
+  //   const target = event.target as HTMLElement;
+  //   if (target && target.classList.contains("modal-close-icon")) {
+  //     const modal = document.getElementById("photo-video-modal");
+  //     const backdrop = document.getElementById("custom-modal-backdrop");
   
-      if (modal) {
-        modal.classList.remove("show");
-        modal.style.display = "none";
-        modal.removeAttribute("aria-modal");
-        modal.setAttribute("aria-hidden", "true");
-      }
+  //     if (modal) {
+  //       modal.classList.remove("show");
+  //       modal.style.display = "none";
+  //       modal.removeAttribute("aria-modal");
+  //       modal.setAttribute("aria-hidden", "true");
+  //     }
   
-      if (backdrop) {
-        backdrop.remove();
-      }
+  //     if (backdrop) {
+  //       backdrop.remove();
+  //     }
   
-      // Restore scroll
-      document.body.classList.remove("modal-open");
-    }
-  });
+  //     // Restore scroll
+  //     document.body.classList.remove("modal-open");
+  //   }
+  // });
   
   
   
@@ -273,6 +427,23 @@ export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClien
     //console.log(this._isDarkTheme + ': < current theme');
     //console.log(this._environmentMessage + ': < current environmentMessage');
   }
+
+  // private method extracts query string parameters from the current URL and returns as an object.
+  private getQueryStringParameters(): any {
+    const queryStringParams: any = {};
+    const queryString = window.location.search;
+
+    if (queryString) {
+        const queryParams = queryString.substring(1).split('&');
+        // Iterate through each parameter and extract its key-value pair
+        queryParams.forEach(param => {
+            const [key, value] = param.split('=');
+            queryStringParams[key] = value;
+        });
+    }
+    return queryStringParams;
+  }
+
   private loadHome():void{
 
     SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);

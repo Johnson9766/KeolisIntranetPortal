@@ -37,30 +37,36 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
   private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
 
   private listName:string='DepartmentNews'
+  private deptName : string = "";
+  private siteName: string = 'IntranetPortal-Dev';
 
 
   // private _isDarkTheme: boolean = false;
   // private _environmentMessage: string = '';
   public async render(): Promise<void> {
+    // function call to extract query string parameters
+    const queryStringParams: any = this.getQueryStringParameters();
+    // Access specific query string parameters
+    let ID: string = queryStringParams['NewsID'];
+    let dept: string = queryStringParams['dept'];
 
-    NewsDetails.deptallElementsHtml = NewsDetails.deptallElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl); 
+    NewsDetails.deptallElementsHtml = NewsDetails.deptallElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
+    .replace(/__KEY_SITE_NAME__/g,this.siteName)
+    .replace(/__KEY_DEPT_NAME__/g,dept); 
       this.domElement.innerHTML = NewsDetails.deptallElementsHtml;
       console.log(this.domElement.innerHTML);
         this.loadCSS();
         
 
-    // function call to extract query string parameters
-    const queryStringParams: any = this.getQueryStringParameters();
-    // Access specific query string parameters
-    let ID: string = queryStringParams['NewsID'];
-    console.log(ID);
+    
+    this.deptName =dept;
     this._renderSuggestedNewsDetails(ID);
 
     // If the ID parameter is null or "0", set it to "1" as a default value
     if (ID == null || ID == "0") ID = "1";
 
     // Api for retrieve the items from the "News" list
-    let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items(${ID})?$select=*,ID,Title,MainContent,Created,Author/Title,Author/Department&$expand=Author`;
+    let apiUrl = `${this.context.pageContext.web.absoluteUrl}/${dept}/_api/web/lists/GetByTitle('${this.listName}')/items(${ID})?$select=*,ID,Title,MainContent,Created,Author/Title,Author/Department&$expand=Author`;
     await this._renderListAsync(apiUrl); 
   }
 
@@ -169,13 +175,16 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
           
           const itemId = item.ID; // Ensure you have the correct item ID
      
-          const attachmentBaseUrl = `${siteUrl}/Lists/DepartmentNews/Attachments/${itemId}/`;
+          const attachmentBaseUrl = `${siteUrl}/${this.deptName}/Lists/DepartmentNews/Attachments/${itemId}/`;
           // console.log(attachmentBaseUrl);
+          let imageUrl = `${this._ResourceUrl}/images/department/default/news.png`; 
      
           // Parse the JSON string to extract the filename
           const pictureData = JSON.parse(item.NewsImage);
-          const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
-          console.log(fileName);
+          if (pictureData?.fileName) {
+            imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
+          }
+          //const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
            
     
             let createdDateString = item.Created;
@@ -198,7 +207,7 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
             
               
               .replace("__KEY_DATA_TITLE__", item.Title)
-              .replace("__KEY_URL_IMG__",fileName)
+              .replace("__KEY_URL_IMG__",imageUrl)
               .replace("__KEY_PUBLISHED_DATE__", date)
               .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
               .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
@@ -234,7 +243,7 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
     let allElementsRemainingNewsHtml = '';
      let singleElementRemainingNewsHtml = '';
      try {
-     const apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=ID,Title,NewsImage,Created,Author/FirstName,Author/LastName,MainContent,FileLeafRef,FileRef&$expand=AttachmentFiles,Author&$filter=ID ne ${currentNewsID}&$orderby=ID desc&$top=4`;
+     const apiUrl = `${this.context.pageContext.web.absoluteUrl}/${this.deptName}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=ID,Title,NewsImage,Created,Author/FirstName,Author/LastName,MainContent,FileLeafRef,FileRef&$expand=AttachmentFiles,Author&$filter=ID ne ${currentNewsID}&$orderby=ID desc&$top=4`;
      await this._getListData(apiUrl) 
      .then((response) => { 
          console.log(response);
@@ -248,14 +257,18 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
           const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
           const itemId = item.ID; // Ensure you have the correct item ID
         
-          const attachmentBaseUrl = `${siteUrl}/Lists/DepartmentNews/Attachments/${itemId}/`;
+          const attachmentBaseUrl = `${siteUrl}/${this.deptName}/Lists/DepartmentNews/Attachments/${itemId}/`;
           // console.log(attachmentBaseUrl);
+          let imageUrl = `${this._ResourceUrl}/images/department/default/news.png`; 
         
         // alert(4);
 
           // Parse the JSON string to extract the filename
           const pictureData = JSON.parse(item.NewsImage);
-          const fileName = attachmentBaseUrl + pictureData.fileName; // Extract the actual filename
+          if (pictureData?.fileName) {
+            imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
+          }
+          //const fileName = attachmentBaseUrl + pictureData.fileName; // Extract the actual filename
           // console.log(fileName);
         // alert(5);
           singleElementRemainingNewsHtml = NewsDetails.deptremainingNewsHtml;
@@ -271,8 +284,9 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
         
           singleElementRemainingNewsHtml = singleElementRemainingNewsHtml
             .replace("__KEY_DATA_TITLE__", item.Title)
-            .replace("__KEY_URL_IMG__", fileName)
+            .replace("__KEY_URL_IMG__", imageUrl)
             .replace("__KEY_PUBLISHED_DATE__", date)
+            .replace("__KEY_URL_NEWSDETAILS__",`${siteUrl}/SitePages/DeptNewsDetails.aspx?&NewsID=${item.ID}&dept=${this.deptName}`);
         
           allElementsRemainingNewsHtml += singleElementRemainingNewsHtml;
         })

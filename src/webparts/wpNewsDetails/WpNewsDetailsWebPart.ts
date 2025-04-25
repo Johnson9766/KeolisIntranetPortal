@@ -41,14 +41,17 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
   // private _ResourceUrl: string = '/sites/KeolisIntranetDev/SiteAssets/resources';
   private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
 
-  private listName:string='NewsCenter'
+  private listName:string='NewsCenter';
+  private siteName: string = 'IntranetPortal-Dev';
 
 
   // private _isDarkTheme: boolean = false;
   // private _environmentMessage: string = '';
   public async render(): Promise<void> {
 
-    NewsDetails.allElementsHtml = NewsDetails.allElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl); 
+    NewsDetails.allElementsHtml = NewsDetails.allElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
+    .replace(/__KEY_SITE_NAME__/g,this.siteName);
+    ; 
       this.domElement.innerHTML = NewsDetails.allElementsHtml;
       console.log(this.domElement.innerHTML);
         this.loadCSS();
@@ -195,8 +198,13 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
      
           // Parse the JSON string to extract the filename
           const pictureData = JSON.parse(item.NewsImage);
-          const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
-          console.log(fileName);
+          let imageUrl = `${this._ResourceUrl}/images/default_home/news.png`; 
+
+          if (pictureData?.fileName) {
+            imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
+          }
+          // const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
+          // console.log(fileName);
            
     
             let createdDateString = item.Created;
@@ -219,7 +227,7 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
             
               
               .replace("__KEY_DATA_TITLE__", item.Title)
-              .replace("__KEY_URL_IMG__",fileName)
+              .replace("__KEY_URL_IMG__",imageUrl)
               .replace("__KEY_PUBLISHED_DATE__", date)
               .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
               .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
@@ -255,7 +263,7 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
     let allElementsRemainingNewsHtml = '';
      let singleElementRemainingNewsHtml = '';
      try {
-     const apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=ID,Title,NewsImage,Created,Author/FirstName,Author/LastName,MainContent,FileLeafRef,FileRef&$expand=AttachmentFiles,Author&$filter=ID ne ${currentNewsID}&$orderby=ID desc&$top=4`;
+     const apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=ID,Title,NewsImage,Created,Author/FirstName,Author/LastName,MainContent,FileLeafRef,FileRef&$expand=AttachmentFiles,Author&$filter=ID ne ${currentNewsID}&$orderby=ID desc&$top=4&$orderby=Created desc`;
      await this._getListData(apiUrl) 
      .then((response) => { 
          console.log(response);
@@ -276,7 +284,12 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
 
           // Parse the JSON string to extract the filename
           const pictureData = JSON.parse(item.NewsImage);
-          const fileName = attachmentBaseUrl + pictureData.fileName; // Extract the actual filename
+          let imageUrl = `${this._ResourceUrl}/images/default_home/news.png`; 
+
+          if (pictureData?.fileName) {
+            imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
+          }
+          //const fileName = attachmentBaseUrl + pictureData.fileName; // Extract the actual filename
           // console.log(fileName);
         // alert(5);
           singleElementRemainingNewsHtml = NewsDetails.remainingNewsHtml;
@@ -292,7 +305,7 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
         
           singleElementRemainingNewsHtml = singleElementRemainingNewsHtml
             .replace("__KEY_DATA_TITLE__", item.Title)
-            .replace("__KEY_URL_IMG__", fileName)
+            .replace("__KEY_URL_IMG__", imageUrl)
             .replace("__KEY_PUBLISHED_DATE__", date)
             .replace("__KEY_URL_NEWSDETAILS__",`${siteUrl}/SitePages/NewsDetails.aspx?&NewsID=${item.ID}`);
         

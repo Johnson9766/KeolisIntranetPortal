@@ -34,6 +34,7 @@ export default class WpAnnoDetailsWebPart extends BaseClientSideWebPart<IWpAnnoD
 
   private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
   private listName:string='Announcements';
+  private siteName: string = 'IntranetPortal-Dev';
 
   public async render(): Promise<void> {
     this.domElement.innerHTML = AnnoDetails.allElementsHtml;
@@ -102,7 +103,8 @@ export default class WpAnnoDetailsWebPart extends BaseClientSideWebPart<IWpAnnoD
                         .replace("__KEY_URL_IMG__",fileName)
                         .replace("__KEY_DATA_EVENTDETAILS__",item.Description)
                         .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
-                        .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
+                        .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
+                        .replace(/__KEY_SITE_NAME__/g,this.siteName);
                       allElementsHtml += singleElementHtml;
           
           

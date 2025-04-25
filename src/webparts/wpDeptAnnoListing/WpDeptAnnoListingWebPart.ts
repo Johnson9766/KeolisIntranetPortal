@@ -29,12 +29,21 @@ export default class WpDeptAnnoListingWebPart extends BaseClientSideWebPart<IWpD
 
   private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
   private listName:string='DepartmentAnnouncement';
+  private deptName : string = "";
+  private siteName: string = 'IntranetPortal-Dev';
 
-
-  
   public async render(): Promise<void> {
-    this.domElement.innerHTML = deptAnnoListing .deptAllElementsHtml;
+    const queryStringParams: any = this.getQueryStringParameters();
+    // Access specific query string parameters
+    let dept: string = queryStringParams['dept'];
+    this.deptName = dept;
+
+    this.domElement.innerHTML = deptAnnoListing .deptAllElementsHtml.replace("__KEY_DEPT_NAME__",dept)
+    .replace("__KEY_SITE_NAME__",this.siteName);
     this.loadCSS();
+
+    
+
     const workbenchContent = document.getElementById('workbenchPageContent'); 
 
     if (workbenchContent) { 
@@ -43,7 +52,7 @@ export default class WpDeptAnnoListingWebPart extends BaseClientSideWebPart<IWpD
   
     } 
   
-    let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=*,Created,Author/Title&$expand=Author/Id&$orderby=SortOrder asc,Created desc&$filter=ActiveStatus eq 1`;
+    let apiUrl = `${this.context.pageContext.web.absoluteUrl}/${dept}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=*,Created,Author/Title&$expand=Author/Id&$orderby=SortOrder asc,Created desc&$filter=ActiveStatus eq 1`;
     await this._renderListAsync(apiUrl);   
   }
 
@@ -80,18 +89,22 @@ export default class WpDeptAnnoListingWebPart extends BaseClientSideWebPart<IWpD
       
           items.forEach((item, index) => {
             let singleElementHtml = deptAnnoListing .deptSingleElementHtml;
+            let imageUrl = `${this._ResourceUrl}/images/department/default/announcement.png`;
             const itemId = item.Id; // Ensure you have the correct item ID
-            const attachmentBaseUrl = `${siteUrl}/Lists/DepartmentAnnouncement/Attachments/${itemId}/`;
+            const attachmentBaseUrl = `${siteUrl}/${this.deptName}/Lists/DepartmentAnnouncement/Attachments/${itemId}/`;
             const pictureData = JSON.parse(item.AnnouncementImage);// Parse the JSON string to extract the filename
-            const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
+            if (pictureData?.fileName) {
+              imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`; // ✅ No trailing underscore
+            }
+            //const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
             let createdDateString = item.Created;
             let createdDate = new Date(createdDateString); // Convert the approved date string to a Date object
             let formattedCreatedDate = this.formatDate(createdDate);
 
             singleElementHtml = singleElementHtml.replace("__KEY_DATA_TITLE__", item.Title)
               .replace("__KEY_START_DATE__", formattedCreatedDate)
-              .replace("__KEY_URL_IMG__",fileName)
-              .replace("__KEY_URL_DEPTDETAILSPAGE__", `${siteUrl}/SitePages/DeptAnnoDetails.aspx?&AnnoID=${item.Id}`);
+              .replace("__KEY_URL_IMG__",imageUrl)
+              .replace("__KEY_URL_DEPTDETAILSPAGE__", `${siteUrl}/SitePages/DeptAnnoDetails.aspx?&AnnoID=${item.Id}&dept=${this.deptName}`);
             allElementsHtml += singleElementHtml;
           });
         } catch (error) {
@@ -134,6 +147,22 @@ export default class WpDeptAnnoListingWebPart extends BaseClientSideWebPart<IWpD
     formattedDate = formattedDate.replace(/\d{2}/, (match) => match + suffix);
 
     return formattedDate;
+  }
+
+  // private method extracts query string parameters from the current URL and returns as an object.
+  private getQueryStringParameters(): any {
+    const queryStringParams: any = {};
+    const queryString = window.location.search;
+
+    if (queryString) {
+        const queryParams = queryString.substring(1).split('&');
+        // Iterate through each parameter and extract its key-value pair
+        queryParams.forEach(param => {
+            const [key, value] = param.split('=');
+            queryStringParams[key] = value;
+        });
+    }
+    return queryStringParams;
   }
 
 

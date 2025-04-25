@@ -5,7 +5,7 @@ export default class announcementHtml{
                       <div
                         class="announcement-swiper-details flex-grow-1 overflow-hidden d-flex flex-column gap-2 pe-4 align-self-end">
                         <p class="font-semibold text-lg keolis-text-secondary">__KEY_DATA_TITLE__</p>
-                        <p class="font-normal text-sm keolis-text-secondary">__KEY_DATA_DESC__</p>
+                        <p class="font-normal text-sm keolis-text-secondary line-clamp-12">__KEY_DATA_DESC__</p>
                         <a href="__KEY_URL_DETAILSPAGE__"
                           class="keolis-btn keolis-btn-primary learn-more-btn text-white align-self-start mt-1">Learn
                           More</a>
@@ -173,7 +173,7 @@ export default class announcementHtml{
           </div>
         </div>
 
-        <div class="w-100 float-start mt-5">
+        <div class="w-100 float-start mt-5" id="yammer">
             <p class="section-title w-100 float-start">Yammer feeds</p>
             <div class="w-100 float-start mt-4">
             </div>

@@ -35,6 +35,7 @@ export default class WpEventDetailsWebPart extends BaseClientSideWebPart<IWpEven
   private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
 
   private listName:string='UpcomingEvents';
+  private siteName: string = 'IntranetPortal-Dev';
 
   public async render(): Promise<void> {
     this.domElement.innerHTML = EventDetails.allElementsHtml;
@@ -95,7 +96,8 @@ export default class WpEventDetailsWebPart extends BaseClientSideWebPart<IWpEven
                         .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
                         .replace("__KEY_FULL_START_DATE__",formattedStartDate + ", " + startTime)
                         .replace("__KEY_FULL_END_DATE__",formattedEndDate + ", " + endTime)
-                        .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
+                        .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
+                        .replace(/__KEY_SITE_NAME__/g,this.siteName);;
                       allElementsHtml += singleElementHtml;
           
           

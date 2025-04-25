@@ -33,16 +33,22 @@ export default class WpDeptAnnoDetailsWebPart extends BaseClientSideWebPart<IWpD
   private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
 
   private listName:string='DepartmentAnnouncement';
+  private deptName: string = ``;
+  private siteName: string = 'IntranetPortal-Dev';
+
 
   public async render(): Promise<void> {
     this.domElement.innerHTML = deptAnnoDetails.allElementsHtml;
     this.loadCSS();
+
     const queryStringParams: any = this.getQueryStringParameters();
     // Access specific query string parameters
     let ID: string = queryStringParams['AnnoID'];
+    let dept: string = queryStringParams['dept'];
+     this.deptName = dept;
 
     // Api for retrieve the items from the "News" list
-    let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items(${ID})?$select=*`;
+    let apiUrl = `${this.context.pageContext.web.absoluteUrl}/${dept}/_api/web/lists/GetByTitle('${this.listName}')/items(${ID})?$select=*`;
     await this._renderListAsync(apiUrl); 
 
   }
@@ -66,10 +72,15 @@ export default class WpDeptAnnoDetailsWebPart extends BaseClientSideWebPart<IWpD
     
           const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
         let singleElementHtml = deptAnnoDetails.singleElementHtml;
+        let imageUrl = `${this._ResourceUrl}/images/department/default/announcement.png`;
+
                       const itemId = item.Id; // Ensure you have the correct item ID
-                      const attachmentBaseUrl = `${siteUrl}/Lists/DepartmentAnnouncement/Attachments/${itemId}/`;
+                      const attachmentBaseUrl = `${siteUrl}/${this.deptName}/Lists/DepartmentAnnouncement/Attachments/${itemId}/`;
                       const pictureData = JSON.parse(item.AnnouncementImage);// Parse the JSON string to extract the filename
-                      const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
+                      if (pictureData?.fileName) {
+                        imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`; // ✅ No trailing underscore
+                      }
+                      //const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
       
                       let createdDateString = item.Created;
                       let createdDate = new Date(createdDateString); // Convert the approved date string to a Date object
@@ -82,11 +93,13 @@ export default class WpDeptAnnoDetailsWebPart extends BaseClientSideWebPart<IWpD
                       const estimatedReadingTimeMin:any = Math.ceil(wordCount / readingSpeedWPM);
           
                       singleElementHtml = singleElementHtml.replace("__KEY_DATA_TITLE__", item.Title)
-                        .replace("__KEY_URL_IMG__",fileName)
+                        .replace("__KEY_URL_IMG__",imageUrl)
                         .replace("__KEY_DATA_EVENTDETAILS__",item.Description)
                         .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
                         .replace("__KEY_PUBLISHED_DATE__", formattedCreatedDate)
-                        .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
+                        .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
+                        .replace(/__KEY_DEPT_NAME__/g,this.deptName)
+                        .replace(/__KEY_SITE_NAME__/g,this.siteName);
                       allElementsHtml += singleElementHtml;
           
           

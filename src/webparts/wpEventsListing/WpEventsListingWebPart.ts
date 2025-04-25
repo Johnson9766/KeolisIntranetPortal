@@ -42,7 +42,7 @@ export default class WpEventsListingWebPart extends BaseClientSideWebPart<IWpEve
     const formattedDate = currentDate.toISOString();
 
     // Api for retrieve the items from the "News" list
-    let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=*&$orderby=Created desc&$filter=StartDate ge '${formattedDate}'`;
+    let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=*&$orderby=StartDate asc&$filter=StartDate ge '${formattedDate}'`;
     await this._renderListAsync(apiUrl); 
   }
 

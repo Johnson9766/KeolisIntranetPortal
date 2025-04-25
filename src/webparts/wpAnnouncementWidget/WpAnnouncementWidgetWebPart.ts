@@ -91,7 +91,7 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
       `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('QuickLinks')/items?$select=*&$orderby=Created desc`,
       `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('NewsCenter')/items?$select=*,Created,Author/Title&$expand=Author/Id&$orderby=Created desc&$top=3`,
       `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('PhotosAndVideosGallery')/items?$select=*,FileLeafRef,FileDirRef,File/ServerRelativeUrl&$orderby=Created desc&$top=6`,
-      `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('UpcomingEvents')/items?$select=*&$orderby=Created desc&$filter=StartDate ge '${formattedDate}'&$top=5`,
+      `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('UpcomingEvents')/items?$select=*&$orderby=StartDate asc&$filter=StartDate ge '${formattedDate}'&$top=5`,
 
 
 
@@ -248,10 +248,9 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
         // }
 
         // Replace placeholder with actual data for main Section image
-          console.log(singleSliderHTMLElement);
 
           singleSliderHTMLElement = singleSliderHTMLElement
-          .replace("__KEY_DATA_DESC__", item.Description)
+          .replace("__KEY_DATA_DESC__", this.extractCleanText(item.Description))
           .replace("__KEY_DATA_TITLE__", item.Title)
           .replace("__KEY_URL_IMG__",fileName)
           .replace("__KEY_URL_DETAILSPAGE__",`${siteUrl}/SitePages/AnnoDetails.aspx?&AnnoID=${item.Id}`)
@@ -267,7 +266,7 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
 
       singleAnnouncementHTMLElement = singleAnnouncementHTMLElement
       .replace("__KEY_DATA_TITLE__",item.Title)
-      .replace("__KEY_DATA_DESC__",item.Description)
+      .replace("__KEY_DATA_DESC__",this.extractCleanText(item.Description))
       .replace("__KEY_URL_IMG__",fileName);
 
       allElementsAnnHtml += singleAnnouncementHTMLElement;
@@ -294,6 +293,25 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
     divAnnouncementElement.innerHTML = allElementsAnnHtml;
   }
 
+  private extractCleanText(html: string): string {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+  
+    const divs = tempDiv.querySelectorAll("div");
+    const textParts: string[] = [];
+  
+    divs.forEach(div => {
+      const text = div.textContent?.trim();
+      if (text) {
+        textParts.push(text);
+      }
+    });
+  
+    // Join with line breaks or space as needed
+    return textParts.join('<br><br>');
+  }
+  
+
 
    // Render QuickLink list asynchronously
    private _renderQuickLinks(items: ISPList[]): void {
@@ -302,20 +320,16 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
     try {
       items.forEach((item, index) => {
 
-        console.log(item.LinkIcon);
-
         const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
  
       
       const itemId = item.Id; // Ensure you have the correct item ID
  
       const attachmentBaseUrl = `${siteUrl}/Lists/QuickLinks/Attachments/${itemId}/`;
-      console.log(attachmentBaseUrl);
  
       // Parse the JSON string to extract the filename
       const pictureData = JSON.parse(item.LinkIcon);
       const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
-      console.log(fileName);
 
         let singleQuickLinkHTMLElement = '';
 
@@ -363,20 +377,22 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
     try {
       items.forEach((item, index) => {
 
-        console.log(item.NewsImage);
-
         const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
  
       
       const itemId = item.Id; // Ensure you have the correct item ID
  
       const attachmentBaseUrl = `${siteUrl}/Lists/NewsCenter/Attachments/${itemId}/`;
-      console.log(attachmentBaseUrl);
+      let imageUrl = `${this._ResourceUrl}/images/default_home/news.png`; 
+
  
       // Parse the JSON string to extract the filename
       const pictureData = JSON.parse(item.NewsImage);
-      const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
-      console.log(fileName);
+      
+      if (pictureData?.fileName) {
+        imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
+      }
+      //const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
 
         let singleNewsCentreElement = '';
 
@@ -398,7 +414,7 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
         singleNewsCentreElement = singleNewsCentreElement
         //   .replace("__KEY_DATA_DESC__", item.Description)
           .replace("__KEY_DATA_TITLE__", item.Title)
-          .replace("__KEY_URL_IMG__",fileName)
+          .replace("__KEY_URL_IMG__",imageUrl)
           .replace("__KEY_ID_NEWS__", item.Id)
           .replace("__KEY_PUBLISHED_DATE__", date)
           
