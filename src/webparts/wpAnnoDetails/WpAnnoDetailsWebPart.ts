@@ -37,16 +37,87 @@ export default class WpAnnoDetailsWebPart extends BaseClientSideWebPart<IWpAnnoD
   private siteName: string = 'IntranetPortal-Dev';
 
   public async render(): Promise<void> {
-    this.domElement.innerHTML = AnnoDetails.allElementsHtml;
+    this.domElement.innerHTML = AnnoDetails.allElementsHtml.replace(/__KEY_SITE_NAME__/g,this.siteName);
     this.loadCSS();
  
     const queryStringParams: any = this.getQueryStringParameters();
     // Access specific query string parameters
     let ID: string = queryStringParams['AnnoID'];
+    this._renderSuggestedAnnoDetails(ID);
 
     let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items(${ID})?$select=*`;
     await this._renderListAsync(apiUrl);
   }
+
+          // render News Details asynchronously
+    private async  _renderSuggestedAnnoDetails(currentNewsID: string): Promise<void> {
+      let allElementsRemainingNewsHtml = '';
+       let singleElementRemainingNewsHtml = '';
+       try {
+       const apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=ID,Title,AnnouncementImage,Created,Author/FirstName,Author/LastName,Description,FileLeafRef,FileRef&$expand=AttachmentFiles,Author&$filter=ID ne ${currentNewsID}&$orderby=ID desc&$top=4&$orderby=Created desc`;
+       await this._getListData(apiUrl) 
+       .then((response) => { 
+           console.log(response);
+           var items :ISPList[] = response.value;
+          //  console.log(items);
+          
+          
+           items.forEach((item, index) => {
+             // Get the current item
+          
+            const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
+            const itemId = item.Id; // Ensure you have the correct item ID
+          
+            const attachmentBaseUrl = `${siteUrl}/Lists/Announcements/Attachments/${itemId}/`;
+            // console.log(attachmentBaseUrl);
+          
+          // alert(4);
+  
+            // Parse the JSON string to extract the filename
+            const pictureData = JSON.parse(item.AnnouncementImage);
+            let imageUrl = `${this._ResourceUrl}/images/default_home/news.png`; 
+  
+            if (pictureData?.fileName) {
+              imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
+            }
+            //const fileName = attachmentBaseUrl + pictureData.fileName; // Extract the actual filename
+            // console.log(fileName);
+          // alert(5);
+            singleElementRemainingNewsHtml = AnnoDetails.remainingNewsHtml;
+          
+            let createdDateString = item.Created;
+          
+            // Convert the approved date string to a Date object
+            let createdDate = new Date(createdDateString);
+            let date = this.formatDate(createdDate)
+            // let time = this.formatTime(createdDate);
+          
+            // console.log(time)
+          
+            singleElementRemainingNewsHtml = singleElementRemainingNewsHtml
+              .replace("__KEY_DATA_TITLE__", item.Title)
+              .replace("__KEY_URL_IMG__", imageUrl)
+              .replace("__KEY_PUBLISHED_DATE__", date)
+              .replace("__KEY_URL_NEWSDETAILS__",`${siteUrl}/SitePages/AnnoDetails.aspx?&AnnoID=${item.Id}`);
+          
+            allElementsRemainingNewsHtml += singleElementRemainingNewsHtml;
+          })
+          
+       }); 
+          } catch (error) {
+            // Handle error gracefully
+            console.error('Error rendering Announcement:', error); 
+          }
+          // if no announcements, then display no record msg
+          if (allElementsRemainingNewsHtml == "") { allElementsRemainingNewsHtml = AnnoDetails.noRecord; }
+      
+          // update the html content of the main section in webpart
+  
+          const divRemainingNewsCenter: Element = this.domElement.querySelector('#remainingAnnoElements')!;
+          divRemainingNewsCenter.innerHTML = allElementsRemainingNewsHtml;
+          console.log(divRemainingNewsCenter);
+  
+        }
 
   
   // render list asynchronously
@@ -82,31 +153,32 @@ export default class WpAnnoDetailsWebPart extends BaseClientSideWebPart<IWpAnnoD
     try {
             // console.log(item.Image);
     
-          const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
+        const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
         let singleElementHtml = AnnoDetails.singleElementHtml;
-                      const itemId = item.Id; // Ensure you have the correct item ID
-                      const attachmentBaseUrl = `${siteUrl}/Lists/Announcements/Attachments/${itemId}/`;
-                      const pictureData = JSON.parse(item.AnnouncementImage);// Parse the JSON string to extract the filename
-                      const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
-                      let createdDateString = item.Created;
-                      let createdDate = new Date(createdDateString); // Convert the approved date string to a Date object
-                      let formattedCreatedDate = this.formatDate(createdDate);
+        const itemId = item.Id; // Ensure you have the correct item ID
+        const attachmentBaseUrl = `${siteUrl}/Lists/Announcements/Attachments/${itemId}/`;
+        const pictureData = JSON.parse(item.AnnouncementImage);// Parse the JSON string to extract the filename
+        const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
+        let createdDateString = item.Created;
+        let createdDate = new Date(createdDateString); // Convert the approved date string to a Date object
+        let formattedCreatedDate = this.formatDate(createdDate);
 
-                      // Reading Time Calculation
-                      const eventDetailsText = item.Description || '';
-                      const wordCount = eventDetailsText.trim().split(/\s+/).length;
-                      const readingSpeedWPM = 200;
-                      const estimatedReadingTimeMin:any = Math.ceil(wordCount / readingSpeedWPM);
-          
-                      singleElementHtml = singleElementHtml.replace("__KEY_DATA_TITLE__", item.Title)
-                        .replace("__KEY_PUBLISHED_DATE__", formattedCreatedDate)
-                        .replace("__KEY_URL_IMG__",fileName)
-                        .replace("__KEY_DATA_EVENTDETAILS__",item.Description)
-                        .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
-                        .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
-                        .replace(/__KEY_SITE_NAME__/g,this.siteName);
-                      allElementsHtml += singleElementHtml;
-          
+        // Reading Time Calculation
+        const eventDetailsText = item.Description || '';
+        const wordCount = eventDetailsText.trim().split(/\s+/).length;
+        const readingSpeedWPM = 200;
+        const estimatedReadingTimeMin:any = Math.ceil(wordCount / readingSpeedWPM);
+
+        singleElementHtml = singleElementHtml.replace("__KEY_DATA_TITLE__", item.Title)
+          .replace("__KEY_PUBLISHED_DATE__", formattedCreatedDate)
+          .replace("__KEY_URL_IMG__",fileName)
+          .replace("__KEY_DATA_EVENTDETAILS__",item.Description)
+          .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
+          .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
+          .replace(/__KEY_SITE_NAME__/g,this.siteName);
+        allElementsHtml += singleElementHtml;
+        const divactiveNewsDesc: Element = this.domElement.querySelector('#annoDescription')!;
+        divactiveNewsDesc.innerHTML = item.Description;
           
         
         } catch (error) {
@@ -116,6 +188,11 @@ export default class WpAnnoDetailsWebPart extends BaseClientSideWebPart<IWpAnnoD
         // update the content if there is no records
               if (allElementsHtml == "") { allElementsHtml = AnnoDetails.noRecord; }
               // update the html content of the webpart
+              const divactiveNews: Element = this.domElement.querySelector('#activeAnno')!;
+              divactiveNews.innerHTML = allElementsHtml;
+
+       
+
               const divNewsListing: Element | null = this.domElement.querySelector('#divEventDetails');
               if (divNewsListing !== null) divNewsListing.innerHTML = allElementsHtml;
 

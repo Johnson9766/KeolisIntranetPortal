@@ -116,7 +116,13 @@ export default class announcementHtml{
             </div>
           </div>
           <div class="w-100 float-start mt-4">
-            <p class="section-title w-100 float-start">Quick Links</p>
+            <div class="w-100 float-start d-flex justify-content-between gap-2 align-items-center">
+              <p class="section-title w-100 float-start">Quick Links</p>
+              <div class="quick-link-slide-controls d-flex gap-3">
+                <div class="quick-link-slide-control-btn quick-link-slide-prev"></div>
+                <div class="quick-link-slide-control-btn quick-link-slide-next"></div>
+              </div>
+            </div>
             <div class="quick-links-swiper swiper mt-4">
               <div class="swiper-wrapper" id="quickLinks">
               

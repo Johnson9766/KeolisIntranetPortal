@@ -61,7 +61,6 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
     const queryStringParams: any = this.getQueryStringParameters();
     // Access specific query string parameters
     let ID: string = queryStringParams['NewsID'];
-    console.log(ID);
     this._renderSuggestedNewsDetails(ID);
 
     // If the ID parameter is null or "0", set it to "1" as a default value

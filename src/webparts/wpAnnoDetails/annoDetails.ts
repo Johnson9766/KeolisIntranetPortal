@@ -1,6 +1,45 @@
 export default class KeolisAnnoDetails{
 
     public static singleElementHtml:string=`  
+    <div class="row d-flex align-items-center gy-4">
+                <div class="col-12 col-lg-6">
+                  <div class="w-100 float-start d-flex flex-column">
+                      <p class="event-details-para-title mb-2 text-size-32 font-semibold text-color-primary-300">__KEY_DATA_TITLE__</p>
+                      <div class="d-flex align-items-center flex-wrap gap-3">
+                          <div class="d-flex align-items-center gap-2">
+                              <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/calendar.png" width="23"/>
+                              <span class="text-sm keolis-text-color-1">__KEY_PUBLISHED_DATE__</span>
+                          </div>
+                          <div class="d-flex align-items-center gap-2">
+                            <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/time.png"/>
+                            <span class="text-sm keolis-text-color-1">__KEY_READINGTIME_TIME__ min</span>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-6 d-flex justify-content-center justify-content-lg-end">
+                  <div class="w-100 float-start event-details-img">
+                      <img src="__KEY_URL_IMG__" alt="" />
+                  </div>
+                </div>
+            </div>
+            `;
+
+  
+  public static remainingNewsHtml:string=`<div class="col-12 col-lg-4" onclick="window.location.href='__KEY_URL_NEWSDETAILS__'" style="cursor: pointer;">
+  <div class="w-100 float-start news-centre-box d-flex flex-column">
+    <img class="w-100 news-centre-img remaining-anno-img" src="__KEY_URL_IMG__" />
+    <div class="d-flex flex-column gap-2 news-centre-details text-color-primary-300">
+      <span class="text-sm font-normal">__KEY_PUBLISHED_DATE__</span>
+      <p class="font-semibold text-size-22">__KEY_DATA_TITLE__</p>
+    </div>
+  </div>
+</div>`;
+
+
+
+public static allElementsHtml:string=`
+  <div class="main-wrapper min-h-screen-container" >
     <div class="w-100 float-start inner-page-title mb-4">
     <div class="w-100 float-start font-semibold py-3 d-flex justify-content-center px-3 px-lg-4">
       <nav aria-label="breadcrumb">
@@ -19,45 +58,25 @@ export default class KeolisAnnoDetails{
       </nav>
     </div>
       <div class="container container-keolis px-3 px-lg-4 clearfix">
-        <div class="w-100 float-start my-4 py-1">
-            <div class="row d-flex align-items-center gy-4">
-                <div class="col-12 col-lg-6">
-                  <div class="w-100 float-start d-flex flex-column">
-                      <p class="event-details-para-title mb-2 text-size-32 font-semibold text-color-primary-300">__KEY_DATA_TITLE__</p>
-                      <div class="d-flex align-items-center flex-wrap gap-3">
-                          <div class="d-flex align-items-center gap-2">
-                              <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/edit.png"/>
-                              <span class="text-sm keolis-text-color-1">__KEY_PUBLISHED_DATE__</span>
-                          </div>
-                          <div class="d-flex align-items-center gap-2">
-                            <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/time.png"/>
-                            <span class="text-sm keolis-text-color-1">__KEY_READINGTIME_TIME__ min</span>
-                        </div>
-                      </div>
-                  </div>
-                </div>
-                <div class="col-12 col-lg-6 d-flex justify-content-center justify-content-lg-end">
-                  <div class="w-100 float-start event-details-img">
-                      <img src="__KEY_URL_IMG__" alt="" />
-                  </div>
-                </div>
-            </div>
+        <div class="w-100 float-start my-4 py-1" id="activeAnno">
+            
         </div>
       </div>
     </div>
     <div class="w-100 float-start inner-page-wrapper">
       <div class="container container-keolis px-3 px-lg-4 clearfix">
         <div class="w-100 float-start mb-4 text-base font-normal news-details-para keolis-text-secondary">
-          <p>__KEY_DATA_EVENTDETAILS__ </p>
+          <p id="annoDescription"> </p>
+        </div>
+        <div class="w-100 float-start mb-4">
+            <div class="row" id="remainingAnnoElements">
+        
+          
+         
+            </div>
         </div>
       </div>
     </div>
-            `;
-
-
-
-public static allElementsHtml:string=`
-  <div class="main-wrapper min-h-screen-container" id="divEventDetails">
     
   </div>
 `;

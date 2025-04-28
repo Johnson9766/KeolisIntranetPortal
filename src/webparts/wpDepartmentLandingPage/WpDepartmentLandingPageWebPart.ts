@@ -102,6 +102,7 @@ this.domElement.innerHTML = finalHtml;
     await this._renderListAsync(DepartmentDetailsapiUrl,this.DeptDetailslistName);
     
     this.loadDepartmentJS();
+    this.loadHomeJS();
   }
   
   private async _renderListAsync(apiUrl: string,listName:string): Promise<void> { 
@@ -702,6 +703,22 @@ private loadCSS(): void {
     // Create new script element with cache busting
     const script = document.createElement('script');
     script.src = `${this.context.pageContext.site.absoluteUrl}/SiteAssets/resources/js/department.js?t=${new Date().getTime()}`;
+    script.async = true;
+    
+    // Add to head
+    document.head.appendChild(script);
+  }
+
+  private loadHomeJS(): void {
+    // Remove existing instance if it exists
+    const existingScript = document.querySelector('script[src*="home.js"]');
+    if (existingScript) {
+        existingScript.remove();
+    }
+  
+    // Create new script element with cache busting
+    const script = document.createElement('script');
+    script.src = `${this.context.pageContext.site.absoluteUrl}/SiteAssets/resources/js/home.js?t=${new Date().getTime()}`;
     script.async = true;
     
     // Add to head

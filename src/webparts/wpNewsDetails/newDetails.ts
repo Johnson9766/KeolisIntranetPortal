@@ -6,7 +6,7 @@ export default class secNewsDetails{
                       <p class="news-details-para-title text-size-32 font-semibold text-color-primary-300">__KEY_DATA_TITLE__</p>
                       <div class="d-flex align-items-center flex-wrap gap-3">
                           <div class="d-flex align-items-center gap-2">
-                              <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/edit.png"/>
+                              <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/calendar.png" width="23"/>
                               <span class="text-sm keolis-text-color-1">__KEY_PUBLISHED_DATE__</span>
                           </div>
                           <div class="d-flex align-items-center gap-2">

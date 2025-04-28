@@ -27,18 +27,22 @@ export default class KeolisEventDetails{
                       <div class="d-flex align-items-center flex-wrap gap-3">
                           <div class="d-flex flex-column gap-1">
                             <div class="d-flex align-items-center gap-2">
-                                <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/edit.png">
+                                <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/calendar.png" width="23"/>
                                 <span class="text-sm keolis-text-color-1">StartDate - __KEY_FULL_START_DATE__</span>
                             </div>
                             <div class="d-flex align-items-center gap-2 ms-4">
-                                <span class="text-sm keolis-text-color-1" style="padding-left: 3px;">EndDate - __KEY_FULL_END_DATE__</span>
+                                <span class="text-sm keolis-text-color-1" style="padding-left: 8px;">EndDate - __KEY_FULL_END_DATE__</span>
                             </div>
-                            </div>
+                          </div>
 
                          <!-- <div class="d-flex align-items-center gap-2">
                             <img class="flex-shrink-0" src="__KEY_URL_RESOURCE__/images/icons/time.png"/>
                             <span class="text-sm keolis-text-color-1">__KEY_READINGTIME_TIME__ min</span>
                         </div> -->
+                        <div class="d-flex align-items-center gap-2 mb-4" style="gap:13px !important;">
+                          <img class="flex-shrink-0 ms-1" src="/sites/IntranetPortal-Dev/SiteAssets/resources/images/icons/location.png" width="13" style="padding-top:4px;">
+                          <span class="text-sm keolis-text-color-1">__KEY_DATA_EVENTLOCATION__</span>
+                        </div>
                       </div>
                   </div>
                 </div>

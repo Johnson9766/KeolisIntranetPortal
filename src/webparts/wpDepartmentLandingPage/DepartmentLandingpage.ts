@@ -64,7 +64,13 @@ export default class DepartmentLandingPage{
           </div>
           <!-- New Start-->
           <div class="w-100 float-start mt-4">
-            <p class="section-title w-100 float-start">Sub Departments</p>
+            <div class="w-100 float-start d-flex justify-content-between gap-2 align-items-center">
+              <p class="section-title w-100 float-start">Sub Departments</p>
+              <div class="quick-link-slide-controls d-flex gap-3">
+                <div class="quick-link-slide-control-btn quick-link-slide-prev"></div>
+                <div class="quick-link-slide-control-btn quick-link-slide-next"></div>
+              </div>
+            </div>
             <div class="quick-links-swiper swiper mt-4">
               <div class="swiper-wrapper" id="divSubDepartments">
               
@@ -106,7 +112,7 @@ export default class DepartmentLandingPage{
               <div class="col-12 col-lg-6">
                 <div class="w-100 float-start d-flex justify-content-between gap-2 align-items-center">
                   <p class="section-title float-start">Document Library</p>
-                  <a href="#" class="view-all-link text-sm font-normal text-color-primary-300 text-decoration-none">View
+                  <a href="#" class="view-all-link text-sm font-normal text-color-primary-300 text-decoration-none d-none">View
                     All</a>
                 </div>
                 <div class="w-100 float-start mt-4 d-flex flex-column gap-3 doc-list-wrapper">
