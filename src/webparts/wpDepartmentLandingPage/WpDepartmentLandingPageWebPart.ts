@@ -8,22 +8,18 @@ import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import * as strings from 'WpDepartmentLandingPageWebPartStrings';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http'; 
 import DepartmentLandingPage from './DepartmentLandingpage' ;
-import { _DivMessage, _ResourceUrl } from '../GlobalVariable';
+import { ResourceUrl, SiteName } from '../GlobalVariable';
  import GlobalImageExtensions from '../GlobalImageExtensions';
 import GlobalVideoExtensions from '../GlobalVideoExtensions';
-import { SPComponentLoader } from '@microsoft/sp-loader';
+// import { SPComponentLoader } from '@microsoft/sp-loader';
 
 
 export interface IWpDepartmentLandingPageWebPartProps {
   description: string;
 }
 export interface ISPLists { 
-
   value: ISPList[]; 
-
 } 
-
- 
 
 export interface ISPList {
   NewsImage: string;
@@ -49,19 +45,15 @@ export interface ISPList {
   AboutDepartment: string;
   SubDepartments: string;
   HODImage:any;
- 
-
-
 }
-
 
 export default class WpDepartmentLandingPageWebPart extends BaseClientSideWebPart<IWpDepartmentLandingPageWebPartProps> {
 
   private NewslistName: string = "DepartmentNews"; 
   private AnnolistName: string = "DepartmentAnnouncement"; 
   private PhotoAndVideolistName: string = "DepartmentPhotosAndVideosGallery"; 
-  private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
-  private siteName: string = 'IntranetPortal-Dev';
+  private _ResourceUrl: string = ResourceUrl;
+  private siteName: string = SiteName;
   private DeptDetailslistName: string = "DepartmentDetails"; 
   private deptName : string = "";
   
@@ -69,26 +61,23 @@ export default class WpDepartmentLandingPageWebPart extends BaseClientSideWebPar
   private activeSubDepartment: string | null = null;
 
   public async render(): Promise<void> {
-    this.loadCSS(); 
-
+    //this.loadCSS(); 
     const queryStringParams: any = this.getQueryStringParameters();
     // Access specific query string parameters
-    let dept: string = queryStringParams['dept'];
+    let dept: string = queryStringParams['dept']; 
     this.deptName = dept;
-    // this.domElement.innerHTML = DepartmentLandingPage.allElementsHtml; 
+
     const finalHtml = DepartmentLandingPage.allElementsHtml
     .replace(/__KEY_SITE_NAME__/g, this.siteName)
     .replace(/__KEY_URL_RESOURCE__/g, this._ResourceUrl)
     .replace(/__KEY_DATA_DEPT__/g,dept)
     .replace("__KEY_DECODED_DEPT__",decodeURIComponent(dept));
-this.domElement.innerHTML = finalHtml;
+
+    this.domElement.innerHTML = finalHtml;
 
     const workbenchContent = document.getElementById('workbenchPageContent'); 
-
     if (workbenchContent) { 
-  
       workbenchContent.style.maxWidth = 'none'; 
-  
     } 
 
     const NewsapiUrl = `${this.context.pageContext.web.absoluteUrl}/${dept}/_api/web/lists/getbytitle('${this.NewslistName}')/items?$select=*,Created,Author/Title&$expand=Author/Id&$orderby=Created desc&$top=3`; 
@@ -125,25 +114,17 @@ this.domElement.innerHTML = finalHtml;
           
       } 
   
-  
-  
     } catch (error) { 
       console.error("Error fetching API:", error); 
-      // const listContainer = this.domElement.querySelector("#listItems"); 
-      // if (listContainer) { 
-      //   listContainer.innerHTML = `<li>API Error</li>`; 
-      // } 
-  
     } 
   
   } 
+
   private async _getListData(apiUrl: string): Promise<ISPLists> { 
-
     return this.context.spHttpClient.get(apiUrl, SPHttpClient.configurations.v1) 
-
       .then((response: SPHttpClientResponse) => response.json()); 
-
   }
+
   private async _getCurrentUserGroups(): Promise<string[]> {
     try {
       const apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/currentuser/groups`;
@@ -157,7 +138,6 @@ this.domElement.innerHTML = finalHtml;
   }
 
   private async _renderAnnoList(items: ISPList[]): Promise<void> {
-    console.log("announcementitems", items);
   
     let listItemsHtml = "";
     const siteUrl = this.context.pageContext.site.absoluteUrl;
@@ -190,7 +170,6 @@ this.domElement.innerHTML = finalHtml;
           console.warn(`Error parsing image for announcement ${item.Id}:`, err);
         }
   
-        
         // Insert values into template
         const announcementHtml = DepartmentLandingPage.AnnouncementHtml
           .replace("__KEY_ANNO_IMG__", imageUrl)
@@ -200,8 +179,6 @@ this.domElement.innerHTML = finalHtml;
           .replace("__KEY_SITE_NAME__",this.siteName)
           .replace("__KEY_DATA_DEPT__",this.deptName)
 
-
-  
         listItemsHtml += announcementHtml;
       }
     } catch (error) {
@@ -266,11 +243,10 @@ this.domElement.innerHTML = finalHtml;
     const attachmentBaseUrl = `${siteUrl}/Lists/DepartmentDetails/Attachments/${deptItem.Id}/`;
     let hodImageUrl = `${this._ResourceUrl}/images/department/dept-avatar.png`;
     if (deptItem.HODImage) {
-    
-        const hodImageData = JSON.parse(deptItem.HODImage);
-        if (hodImageData?.fileName) {
-          hodImageUrl = `${attachmentBaseUrl}${hodImageData.fileName}`;
-        }
+      const hodImageData = JSON.parse(deptItem.HODImage);
+      if (hodImageData?.fileName) {
+        hodImageUrl = `${attachmentBaseUrl}${hodImageData.fileName}`;
+      }
      
     }
 
@@ -278,7 +254,6 @@ this.domElement.innerHTML = finalHtml;
     if (hodImg) {
       hodImg.src = hodImageUrl;
     }
-
 
     // Update UI elements
     const HODName = this.domElement.querySelector('#HODName');
@@ -291,221 +266,212 @@ this.domElement.innerHTML = finalHtml;
         aboutSection.innerHTML = deptItem.AboutDepartment || 'No data found';
     }
 
-// Get ALL sub-departments
-const subDepartments = deptItem.SubDepartments 
-? deptItem.SubDepartments.split(',').map(s => s.trim()).filter(s => s)
-: [];
+    // Get ALL sub-departments
+    const subDepartments = deptItem.SubDepartments 
+    ? deptItem.SubDepartments.split(',').map(s => s.trim()).filter(s => s)
+    : [];
 
-// Get user's accessible sub-departments
-const userGroups = await this._getCurrentUserGroups();
-const userSubDepartments = this._getUserSubDepartments(userGroups, subDepartments);
-console.log("userSubDepartments", userSubDepartments)
+    // Get user's accessible sub-departments
+    const userGroups = await this._getCurrentUserGroups();
+    const userSubDepartments = this._getUserSubDepartments(userGroups, subDepartments);
+    //console.log("userSubDepartments", userSubDepartments)
 
-// Set initial active sub-department (first accessible one if any)
-this.activeSubDepartment = userSubDepartments.length > 0 ? userSubDepartments[0] : null;
+    // Set initial active sub-department (first accessible one if any)
+    this.activeSubDepartment = userSubDepartments.length > 0 ? userSubDepartments[0] : null;
 
-// Render sub-departments
-this._renderSubDepartments(subDepartments, userSubDepartments);
+    // Render sub-departments
+    this._renderSubDepartments(subDepartments, userSubDepartments);
 
-// Update internal documents link
-this._updateInternalDocumentsLink();
-}
-
-private _getUserSubDepartments(userGroups: string[], subDepartments: string[]): string[] {
-  const accessibleSubDepartments: string[] = [];
-  
-  // Check each user group against sub-departments
-  for (let i = 0; i < userGroups.length; i++) {
-      const group = userGroups[i];
-      // Remove common suffixes
-      // const baseGroupName = group.replace(/(Members|Owners|Visitors|Team|Group)$/i, '').trim();
-      const baseGroupName = group.replace(/(SubDept)$/i, '').trim();
-      
-      // Compare with each sub-department
-      for (let j = 0; j < subDepartments.length; j++) {
-          const subDept = subDepartments[j];
-          if (subDept.toLowerCase() === baseGroupName.toLowerCase()) {
-              // Check if already added
-              let alreadyExists = false;
-              for (let k = 0; k < accessibleSubDepartments.length; k++) {
-                  if (accessibleSubDepartments[k] === subDept) {
-                      alreadyExists = true;
-                      break;
-                  }
-              }
-              if (!alreadyExists) {
-                  accessibleSubDepartments.push(subDept);
-              }
-              break;
-          }
-      }
-  }
-  
-  return accessibleSubDepartments;
-}
-
-
-private _renderSubDepartments(allSubDepartments: string[], userSubDepartments: string[]): void {
-  const container = this.domElement.querySelector('#divSubDepartments');
-  if (!container) return;
-
-  let html = '';
-  for (let i = 0; i < allSubDepartments.length; i++) {
-      const subDept = allSubDepartments[i];
-      let isAccessible = false;
-      
-      // Check if user has access
-      for (let j = 0; j < userSubDepartments.length; j++) {
-          if (userSubDepartments[j] === subDept) {
-              isAccessible = true;
-              break;
-          }
-      }
-
-      const isActive = this.activeSubDepartment === subDept;
-      const activeClass = isActive ? 'active-subdept' : '';
-      const accessibleClass = isAccessible ? 'accessible-subdept' : '';
-      const iconUrl = `${this._ResourceUrl}/images/department/subdepts-icon.png`;
-
-      html += `
-          <div class="swiper-slide quick-link-box d-flex flex-column align-items-center justify-content-center gap-2 ${accessibleClass} ${activeClass}" 
-               style="cursor: ${isAccessible ? 'pointer' : 'default'}; width: 195.333px; margin-right: 12px;"
-               data-subdept="${encodeURIComponent(subDept)}">
-              <img class="mw-px-64" src="${iconUrl}" alt="${subDept}">
-              <p class="w-100 text-center text-lg font-semibold text-white m-0">${subDept}</p>
-          </div>
-      `;
+    // Update internal documents link
+    this._updateInternalDocumentsLink();
   }
 
-  container.innerHTML = html || '<div class="swiper-slide">No sub-departments defined</div>';
-  this._addSubDeptClickHandlers(userSubDepartments);
-  this._initializeSwiper();
-}
-
-
-
-private _addSubDeptClickHandlers(userSubDepartments: string[]): void {
-  // const elements = document.querySelectorAll('#divSubDepartments .accessible-subdept');
-  const elements = document.querySelectorAll('#divSubDepartments .quick-link-box');
-  for (let i = 0; i < elements.length; i++) {
-      elements[i].addEventListener('click', () => {
-          const subDept = decodeURIComponent(elements[i].getAttribute('data-subdept') || '');
-          
-          // Only proceed if user has access
-          let hasAccess = false;
-          for (let j = 0; j < userSubDepartments.length; j++) {
-              if (userSubDepartments[j] === subDept) {
-                  hasAccess = true;
-                  break;
-              }
-          }
-          
-          if (hasAccess) {
-              // Update active sub-department
-              this.activeSubDepartment = subDept;
-              
-              // Update UI
-              const activeElements = document.querySelectorAll('#divSubDepartments .active-subdept');
-              for (let j = 0; j < activeElements.length; j++) {
-                  activeElements[j].classList.remove('active-subdept');
-              }
-              elements[i].classList.add('active-subdept');
-              
-              // Update internal documents link
-              this._updateInternalDocumentsLink();
-          } else {
-            // User doesn't have access - show alert
-            alert(`You don't have access to ${subDept}`);
-          }
-      });
-  }
-}
-
-private _updateInternalDocumentsLink(): void {
-  // Get department from query string
-  const queryParams = this.getQueryStringParameters();
-  const dept = queryParams['dept'] || '';
-  if (!dept) return;
-
-  // Get current active sub-department or empty string
-  const activeSubDept = this.activeSubDepartment || '';
-
-  // List of document types and their selectors
-  const docTypes = [
-      {
-          selector: '.internal-doc',
-          path: 'Internal Documents'
-      },
-      {
-          selector: '.policies-procedures',
-          path: 'Policies and Procedures'
-      },
-      {
-          selector: '.knowledge-base',
-          path: 'Knowledge Base'
-      }
-  ];
-
-    // If user has no sub-departments, set all links to show alert
-    if (!this.activeSubDepartment) {
-      for (let i = 0; i < docTypes.length; i++) {
-          const linkElement = this.domElement.querySelector(docTypes[i].selector);
-          if (linkElement) {
-              linkElement.setAttribute('onclick', `alert('Access denied: You are not associated with any sub-departments.'); return false;`);
-          }
-      }
-      return;
+  private _getUserSubDepartments(userGroups: string[], subDepartments: string[]): string[] {
+    const accessibleSubDepartments: string[] = [];
+    
+    // Check each user group against sub-departments
+    for (let i = 0; i < userGroups.length; i++) {
+        const group = userGroups[i];
+        // Remove common suffixes
+        // const baseGroupName = group.replace(/(Members|Owners|Visitors|Team|Group)$/i, '').trim();
+        const baseGroupName = group.replace(/(SubDept)$/i, '').trim();
+        
+        // Compare with each sub-department
+        for (let j = 0; j < subDepartments.length; j++) {
+            const subDept = subDepartments[j];
+            if (subDept.toLowerCase() === baseGroupName.toLowerCase()) {
+                // Check if already added
+                let alreadyExists = false;
+                for (let k = 0; k < accessibleSubDepartments.length; k++) {
+                    if (accessibleSubDepartments[k] === subDept) {
+                        alreadyExists = true;
+                        break;
+                    }
+                }
+                if (!alreadyExists) {
+                    accessibleSubDepartments.push(subDept);
+                }
+                break;
+            }
+        }
+    }
+    
+    return accessibleSubDepartments;
   }
 
-  // Update each document link
-  for (let i = 0; i < docTypes.length; i++) {
-      const docType = docTypes[i];
-      const linkElement = this.domElement.querySelector(docType.selector);
-      
-      if (linkElement) {
-        const encodeSharePoint = (str: string) => {
-          return str.replace(/ /g, '%20')  // Convert spaces to %20
-                   .replace(/&/g, '')   // Convert & to %20 (specific to your case)
-                   .replace(/'/g, '%27')   // Single quotes
-                   .replace(/"/g, '%22');  // Double quotes
-        };
+  private _renderSubDepartments(allSubDepartments: string[], userSubDepartments: string[]): void {
+    const container = this.domElement.querySelector('#divSubDepartments');
+    if (!container) return;
 
-          // Encode each path component separately
-          //const encodedDept = encodeURIComponent(dept);
-          const encodedDept = dept;
+    let html = '';
+    for (let i = 0; i < allSubDepartments.length; i++) {
+        const subDept = allSubDepartments[i];
+        let isAccessible = false;
+        
+        // Check if user has access
+        for (let j = 0; j < userSubDepartments.length; j++) {
+            if (userSubDepartments[j] === subDept) {
+                isAccessible = true;
+                break;
+            }
+        }
 
-          const encodedPath = encodeURIComponent(docType.path);
-          // const encodedSubDept = encodeURIComponent(activeSubDept);
-          const encodedSubDept = encodeSharePoint(activeSubDept);
+        const isActive = this.activeSubDepartment === subDept;
+        const activeClass = isActive ? 'active-subdept' : '';
+        const accessibleClass = isAccessible ? 'accessible-subdept' : '';
+        const iconUrl = `${this._ResourceUrl}/images/department/subdepts-icon.png`;
 
-          // Build the URL
-          const newUrl = `/sites/IntranetPortal-Dev/${encodedDept}/${encodedSubDept}/${encodedPath}`;
-          
-          // Update the onclick attribute
-          linkElement.setAttribute('onclick', `window.open('${newUrl}', '_blank');`);
-      }
+        html += `
+            <div class="swiper-slide quick-link-box d-flex flex-column align-items-center justify-content-center gap-2 ${accessibleClass} ${activeClass}" 
+                style="cursor: ${isAccessible ? 'pointer' : 'default'}; width: 195.333px; margin-right: 12px;"
+                data-subdept="${encodeURIComponent(subDept)}">
+                <img class="mw-px-64" src="${iconUrl}" alt="${subDept}">
+                <p class="w-100 text-center text-lg font-semibold text-white m-0">${subDept}</p>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html || '<div class="swiper-slide">No sub-departments defined</div>';
+    this._addSubDeptClickHandlers(userSubDepartments);
+    this._initializeSwiper();
   }
-}
 
-
-private _initializeSwiper(): void {
-  // Initialize swiper if the library is available
-  if ((window as any).Swiper) {
-      new (window as any).Swiper('.quick-links-swiper', {
-          slidesPerView: 'auto',
-          spaceBetween: 12,
-          freeMode: true,
-          watchOverflow: true,
-          // Add any other swiper configuration you need
-      });
-  } else {
-      console.warn('Swiper library not loaded');
-      // Optionally load Swiper dynamically if needed
-      // SPComponentLoader.loadScript('https://unpkg.com/swiper/swiper-bundle.min.js');
+  private _addSubDeptClickHandlers(userSubDepartments: string[]): void {
+    // const elements = document.querySelectorAll('#divSubDepartments .accessible-subdept');
+    const elements = document.querySelectorAll('#divSubDepartments .quick-link-box');
+    for (let i = 0; i < elements.length; i++) {
+        elements[i].addEventListener('click', () => {
+            const subDept = decodeURIComponent(elements[i].getAttribute('data-subdept') || '');
+            
+            // Only proceed if user has access
+            let hasAccess = false;
+            for (let j = 0; j < userSubDepartments.length; j++) {
+                if (userSubDepartments[j] === subDept) {
+                    hasAccess = true;
+                    break;
+                }
+            }
+            
+            if (hasAccess) {
+                // Update active sub-department
+                this.activeSubDepartment = subDept;
+                
+                // Update UI
+                const activeElements = document.querySelectorAll('#divSubDepartments .active-subdept');
+                for (let j = 0; j < activeElements.length; j++) {
+                    activeElements[j].classList.remove('active-subdept');
+                }
+                elements[i].classList.add('active-subdept');
+                
+                // Update internal documents link
+                this._updateInternalDocumentsLink();
+            } else {
+              // User doesn't have access - show alert
+              alert(`You don't have access to ${subDept}`);
+            }
+        });
+    }
   }
-}
 
+  private _updateInternalDocumentsLink(): void {
+    // Get department from query string
+    const queryParams = this.getQueryStringParameters();
+    const dept = queryParams['dept'] || '';
+    if (!dept) return;
 
+    // Get current active sub-department or empty string
+    const activeSubDept = this.activeSubDepartment || '';
+
+    // List of document types and their selectors
+    const docTypes = [
+        {
+            selector: '.internal-doc',
+            path: 'Internal Documents'
+        },
+        {
+            selector: '.policies-procedures',
+            path: 'Policies and Procedures'
+        },
+        {
+            selector: '.knowledge-base',
+            path: 'Knowledge Base'
+        }
+    ];
+
+      // If user has no sub-departments, set all links to show alert
+      if (!this.activeSubDepartment) {
+        for (let i = 0; i < docTypes.length; i++) {
+            const linkElement = this.domElement.querySelector(docTypes[i].selector);
+            if (linkElement) {
+                linkElement.setAttribute('onclick', `alert('Access denied: You are not associated with any sub-departments.'); return false;`);
+            }
+        }
+        return;
+    }
+
+    // Update each document link
+    for (let i = 0; i < docTypes.length; i++) {
+        const docType = docTypes[i];
+        const linkElement = this.domElement.querySelector(docType.selector);
+        
+        if (linkElement) {
+          const encodeSharePoint = (str: string) => {
+            return str.replace(/ /g, '%20')  // Convert spaces to %20
+                    .replace(/&/g, '')   // Convert & to %20 (specific to your case)
+                    .replace(/'/g, '%27')   // Single quotes
+                    .replace(/"/g, '%22');  // Double quotes
+          };
+
+            // Encode each path component separately
+            //const encodedDept = encodeURIComponent(dept);
+            const encodedDept = dept;
+
+            const encodedPath = encodeURIComponent(docType.path);
+            // const encodedSubDept = encodeURIComponent(activeSubDept);
+            const encodedSubDept = encodeSharePoint(activeSubDept);
+
+            // Build the URL
+            const newUrl = `/sites/IntranetPortal-Dev/${encodedDept}/${encodedSubDept}/${encodedPath}`;
+            
+            // Update the onclick attribute
+            linkElement.setAttribute('onclick', `window.open('${newUrl}', '_blank');`);
+        }
+    }
+  }
+
+  private _initializeSwiper(): void {
+    // Initialize swiper if the library is available
+    if ((window as any).Swiper) {
+        new (window as any).Swiper('.quick-links-swiper', {
+            slidesPerView: 'auto',
+            spaceBetween: 12,
+            freeMode: true,
+            watchOverflow: true,
+        });
+    } else {
+        console.warn('Swiper library not loaded');
+    }
+  }
 
   private async _renderNewsList(items: ISPList[]): Promise<void> {
     let listItemsHtml = "";
@@ -527,14 +493,12 @@ private _initializeSwiper(): void {
         } catch (err) {
           console.warn(`Error parsing image for news item ${item.Id}:`, err);
         }
-    
         
         // Format date and time
         const createdDate = new Date(item.Created);
         const date = this.formatDate(createdDate); 
         const fullDateTime = `${date} `;
        
-
         // Replace placeholders in HTML template
         const newsHtml = DepartmentLandingPage.NewsHtml
           .replace("__KEY_NEWSIMG_URL__", imageUrl)
@@ -557,19 +521,11 @@ private _initializeSwiper(): void {
     }
   }
   
-
-  
-
-  
-
   private async _renderPhotoAndVideo(items: ISPList[]): Promise<void> {
     let listItemsHtml = '';
   
     try {
-      const rootUrl = this.context.pageContext.web.absoluteUrl.replace(
-        this.context.pageContext.web.serverRelativeUrl,
-        ''
-      );
+      const rootUrl = this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,'');
   
       for (const item of items) {
         const fileName = item.FileLeafRef || '';
@@ -614,7 +570,8 @@ private _initializeSwiper(): void {
     }
   }
 
-    //helper functions
+  //helper functions
+
   // private method extracts query string parameters from the current URL and returns as an object.
   private getQueryStringParameters(): any {
     const queryStringParams: any = {};
@@ -631,40 +588,37 @@ private _initializeSwiper(): void {
     return queryStringParams;
   }
 
-  private loadHome():void{
+  // private loadHome():void{
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+  // }
 
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
-  }
-
-
-private loadCSS(): void {
- 
-    // this._ResourceUrl = this.context.pageContext.web.absoluteUrl + "/SiteAssets/resources";
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/department.js`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
-
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/department.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
-
-   
-
-    // Load home.js after CSS files are loaded
-        setTimeout(this.loadHome,1000);
-
-}
+  // private loadCSS(): void {
   
+  //     // this._ResourceUrl = this.context.pageContext.web.absoluteUrl + "/SiteAssets/resources";
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/department.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
 
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/department.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+
+    
+
+  //     // Load home.js after CSS files are loaded
+  //         setTimeout(this.loadHome,1000);
+
+  // }
+  
   private formatDate(date: Date): string {
     const options: Intl.DateTimeFormatOptions = {
       day: '2-digit',

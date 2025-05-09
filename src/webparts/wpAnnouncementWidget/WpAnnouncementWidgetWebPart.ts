@@ -17,6 +17,7 @@ import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 
 import GlobalImageExtensions from '../GlobalImageExtensions';
 import GlobalVideoExtensions from '../GlobalVideoExtensions';
+import { ResourceUrl } from '../GlobalVariable';
 
 export interface IWpAnnouncementWidgetWebPartProps {
   description: string;
@@ -39,7 +40,6 @@ export interface ISPList {
   FileLeafRef:any;
   FileDirRef:any;
   ServerRelativeUrl:any;
-  
   Author:
   {
     FirstName: string;
@@ -47,8 +47,6 @@ export interface ISPList {
     Title:string;
   }
   Created:any;
-
-
   EventPhoto:any;
   EventLocation:string;
   EventDetails:string;
@@ -58,16 +56,7 @@ export interface ISPList {
 
 export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<IWpAnnouncementWidgetWebPartProps> {
 
-  // private _isDarkTheme: boolean = false;
-  // private _environmentMessage: string = '';
-
-  // private _ResourceUrl: string = '/sites/KeolisIntranetDev/SiteAssets/resources';
-  private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
-
-  
-
-  // private listname: string = 'Announcements';
-
+  private _ResourceUrl: string = ResourceUrl;
 
   public async render(): Promise <void>  {
     const siteUrl = this.context.pageContext.site.absoluteUrl; 
@@ -79,22 +68,17 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
     .replace("__KEY_URL_EVENTSLISTING__",`${siteUrl}/SitePages/EventsListing.aspx`)
     .replace("__KEY_URL_PHOTOVDOLISTING__",`${siteUrl}/SitePages/PhotoVideoListing.aspx`); 
     this.domElement.innerHTML = announcementHtml.allElementsHtml;
-    //this.loadCSS();
 
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
     const formattedDate = currentDate.toISOString();
-    console.log(formattedDate);
     // API URL to retrieve the items from the "Announcement" list
     const apiUrls = [
       `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Announcements')/items?$select=*,Created,Author/Title&$expand=Author/Id&$orderby=SortOrder asc,Created desc&$filter=ActiveStatus eq 1&$top=3`,
       `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('QuickLinks')/items?$select=*&$orderby=Created desc`,
       `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('NewsCenter')/items?$select=*,Created,Author/Title&$expand=Author/Id&$orderby=Created desc&$top=3`,
       `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('PhotosAndVideosGallery')/items?$select=*,FileLeafRef,FileDirRef,File/ServerRelativeUrl&$orderby=Created desc&$top=6`,
-      `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('UpcomingEvents')/items?$select=*&$orderby=StartDate asc&$filter=StartDate ge '${formattedDate}'&$top=5`,
-
-
-
+      `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('UpcomingEvents')/items?$select=*&$orderby=StartDate asc&$filter=StartDate ge '${formattedDate}'&$top=5`
     ];
     await this._renderListAsync(apiUrls);
     this.loadHomeJS();
@@ -113,7 +97,6 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
       return 'User';
     }
   }
-
 
   //  // Function to format the date as dd mon yyyy
    private formatDate(date: Date): string {
@@ -183,19 +166,11 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
     try {
       //  fetch data from all API URLs concurrently   
       const responses = await Promise.all(apiUrls.map(url => this._getListData(url)));
-      console.log(responses[4].value);
       this._renderAnnoList(responses[0].value)
       this._renderQuickLinks(responses[1].value)
       this._renderNewsList(responses[2].value);
       this._renderPhotosVideosList(responses[3].value)
       this._renderUpcomingEventsList(responses[4].value)
-
-  // //     // Handle the responses
-  //     responses.forEach((response, index) => {
-  //       console.log(`Response from API ${index + 1}:`, response);
-  //       this._renderAnnoList(response.value);  // Render list for each response
-  //     });
-  
     } catch (error) {
       console.error("Error fetching data from APIs:", error);
     }
@@ -206,72 +181,36 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
   private _renderAnnoList(items: ISPList[]): void {
     let allElementsSliderHtml: string = "";
     let allElementsAnnHtml: string = "";
-    console.log(items);
     try {
       items.forEach((item, index) => {  
-
-        // let rootUrl = this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl, '');
-        // const serverRelativeUrl = `${rootUrl}${item.FileDirRef}/${item.FileLeafRef}`;
-        // console.log(item.FileDirRef)
-        // console.log(item.FileLeafRef)
-
-        // console.log(serverRelativeUrl);
-
         const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
+        const itemId = item.Id; // Ensure you have the correct item ID
+        const attachmentBaseUrl = `${siteUrl}/Lists/Announcements/Attachments/${itemId}/`;
  
-      
-      const itemId = item.Id; // Ensure you have the correct item ID
- 
-      const attachmentBaseUrl = `${siteUrl}/Lists/Announcements/Attachments/${itemId}/`;
-      console.log(attachmentBaseUrl);
- 
-      // Parse the JSON string to extract the filename
-      const pictureData = JSON.parse(item.AnnouncementImage);
-      const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
-      console.log(fileName);
-
-        // Get the file extension
-        // let fileName: string = item.FileLeafRef;
-        // let fileExtension: any = fileName.split('.').pop();
+        // Parse the JSON string to extract the filename
+        const pictureData = JSON.parse(item.AnnouncementImage);
+        const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
 
         let singleSliderHTMLElement = '';
         let singleAnnouncementHTMLElement = '';
 
-        // Check if the file is an image or video based on its extension
-        // if (GlobalImageExtensions.AllImageExtensions.some(imageExt => imageExt.ImageExtension === fileExtension)) {
-          
-        
-          singleSliderHTMLElement = announcementHtml.singleAnnouncementSliderElementHtml;
-        // } else if (GlobalVideoExtensions.AllVideoExtensions.some(videoExt => videoExt.VideoExtension === fileExtension)) {
-      
-        //   singleHTMLElement = announcementHtml.singleAnnouncementVideoDesc;
-        // }
+        singleSliderHTMLElement = announcementHtml.singleAnnouncementSliderElementHtml;
+        singleSliderHTMLElement = singleSliderHTMLElement
+        .replace("__KEY_DATA_DESC__", this.extractCleanText(item.Description))
+        .replace("__KEY_DATA_TITLE__", item.Title)
+        .replace("__KEY_URL_IMG__",fileName)
+        .replace("__KEY_URL_DETAILSPAGE__",`${siteUrl}/SitePages/AnnoDetails.aspx?&AnnoID=${item.Id}`)
+              
+        allElementsSliderHtml += singleSliderHTMLElement; 
 
-        // Replace placeholder with actual data for main Section image
+        singleAnnouncementHTMLElement = announcementHtml.singleAnnouncementListElementHtml;
 
-          singleSliderHTMLElement = singleSliderHTMLElement
-          .replace("__KEY_DATA_DESC__", this.extractCleanText(item.Description))
-          .replace("__KEY_DATA_TITLE__", item.Title)
-          .replace("__KEY_URL_IMG__",fileName)
-          .replace("__KEY_URL_DETAILSPAGE__",`${siteUrl}/SitePages/AnnoDetails.aspx?&AnnoID=${item.Id}`)
-          // .replace("__KEY_DATA_PUBLISHEDBY__", item.Author.Title)
-          // .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
+        singleAnnouncementHTMLElement = singleAnnouncementHTMLElement
+        .replace("__KEY_DATA_TITLE__",item.Title)
+        .replace("__KEY_DATA_DESC__",this.extractCleanText(item.Description))
+        .replace("__KEY_URL_IMG__",fileName);
 
-          
-       
-
-      allElementsSliderHtml += singleSliderHTMLElement; 
-
-      singleAnnouncementHTMLElement = announcementHtml.singleAnnouncementListElementHtml;
-
-      singleAnnouncementHTMLElement = singleAnnouncementHTMLElement
-      .replace("__KEY_DATA_TITLE__",item.Title)
-      .replace("__KEY_DATA_DESC__",this.extractCleanText(item.Description))
-      .replace("__KEY_URL_IMG__",fileName);
-
-      allElementsAnnHtml += singleAnnouncementHTMLElement;
-      
-      // }
+        allElementsAnnHtml += singleAnnouncementHTMLElement;
     });
     } catch (error) {
       // Handle error gracefully
@@ -297,61 +236,53 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = html;
   
-    const divs = tempDiv.querySelectorAll("div");
-    const textParts: string[] = [];
-  
-    divs.forEach(div => {
-      const text = div.textContent?.trim();
-      if (text) {
-        textParts.push(text);
-      }
-    });
-  
-    // Join with line breaks or space as needed
-    return textParts.join('<br><br>');
+    // Use textContent to get the full cleaned-up version
+    return tempDiv.textContent?.trim() || "";
   }
+
+  // private extractCleanText(html: string): string {
+  //   const tempDiv = document.createElement("div");
+  //   tempDiv.innerHTML = html;
   
+  //   const divs = tempDiv.querySelectorAll("div");
+  //   const textParts: string[] = [];
+  
+  //   divs.forEach(div => {
+  //     const text = div.textContent?.trim();
+  //     if (text) {
+  //       textParts.push(text);
+  //     }
+  //   });
+  
+  //   // Join with line breaks or space as needed
+  //   return textParts.join('<br><br>');
+  // }
 
-
-   // Render QuickLink list asynchronously
-   private _renderQuickLinks(items: ISPList[]): void {
+  // Render QuickLink list asynchronously
+  private _renderQuickLinks(items: ISPList[]): void {
     let allElementsQuickLinksHtml: string = "";
     
     try {
       items.forEach((item, index) => {
-
         const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
- 
-      
-      const itemId = item.Id; // Ensure you have the correct item ID
- 
-      const attachmentBaseUrl = `${siteUrl}/Lists/QuickLinks/Attachments/${itemId}/`;
- 
-      // Parse the JSON string to extract the filename
-      const pictureData = JSON.parse(item.LinkIcon);
-      const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
+        const itemId = item.Id; // Ensure you have the correct item ID
+        const attachmentBaseUrl = `${siteUrl}/Lists/QuickLinks/Attachments/${itemId}/`;
+  
+        // Parse the JSON string to extract the filename
+        const pictureData = JSON.parse(item.LinkIcon);
+        const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
 
         let singleQuickLinkHTMLElement = '';
 
         singleQuickLinkHTMLElement = announcementHtml.singleQuickLinkElement;
 
-
         // // Replace placeholder with actual data for main Section image
         singleQuickLinkHTMLElement = singleQuickLinkHTMLElement
-        //   .replace("__KEY_DATA_DESC__", item.Description)
           .replace("__KEY_DATA_TITLE__", item.Title)
           .replace("__KEY_URL_IMGICON__",fileName)
           .replace("__KEY_URL_LINK__", item.LinkURL.Url || "#")
-        //   .replace("__KEY_DATA_PUBLISHEDBY__", item.Author.Title)
-        //   .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
-
           
-       
-
         allElementsQuickLinksHtml += singleQuickLinkHTMLElement; 
-      // console.log(allElementsQuickLinksHtml);
-      
-      // }
     });
     } catch (error) {
       // Handle error gracefully
@@ -366,68 +297,39 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
 
   }
 
-
-
-
-
   // Render News list asynchronously
   private _renderNewsList(items: ISPList[]): void {
     let allElementsNewsCenterHtml: string = "";
-    console.log(items);
     try {
       items.forEach((item, index) => {
-
         const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
- 
-      
-      const itemId = item.Id; // Ensure you have the correct item ID
- 
-      const attachmentBaseUrl = `${siteUrl}/Lists/NewsCenter/Attachments/${itemId}/`;
-      let imageUrl = `${this._ResourceUrl}/images/default_home/news.png`; 
+        const itemId = item.Id; // Ensure you have the correct item ID
+        const attachmentBaseUrl = `${siteUrl}/Lists/NewsCenter/Attachments/${itemId}/`;
+        let imageUrl = `${this._ResourceUrl}/images/default_home/news.png`; 
 
- 
-      // Parse the JSON string to extract the filename
-      const pictureData = JSON.parse(item.NewsImage);
+        // Parse the JSON string to extract the filename
+        const pictureData = JSON.parse(item.NewsImage);
       
-      if (pictureData?.fileName) {
-        imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
-      }
-      //const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
+        if (pictureData?.fileName) {
+          imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
+        }
 
         let singleNewsCentreElement = '';
-
         singleNewsCentreElement = announcementHtml.singleNewsCentreElement;
-
         let createdDateString = item.Created;
-        console.log(item.Created); 
 
         // Convert the approved date string to a Date object
         let createdDate = new Date(createdDateString);
         let date = this.formatDate(createdDate)
-        let time = this.formatTime(createdDate);
 
-        console.log(time)
-
-
-
-        // // Replace placeholder with actual data for main Section image
+        // Replace placeholder with actual data for main Section image
         singleNewsCentreElement = singleNewsCentreElement
-        //   .replace("__KEY_DATA_DESC__", item.Description)
           .replace("__KEY_DATA_TITLE__", item.Title)
           .replace("__KEY_URL_IMG__",imageUrl)
           .replace("__KEY_ID_NEWS__", item.Id)
-          .replace("__KEY_PUBLISHED_DATE__", date)
-          
-
-        //   .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
-
-          
-       
+          .replace("__KEY_PUBLISHED_DATE__", date);
 
         allElementsNewsCenterHtml += singleNewsCentreElement; 
-      // console.log(allElementsNewsCenterHtml);
-      
-      // }
     });
     } catch (error) {
       // Handle error gracefully
@@ -437,15 +339,12 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
     if (allElementsNewsCenterHtml == "") { allElementsNewsCenterHtml = announcementHtml.noRecord; }
 
     // update the html content of the main section in webpart
-    
-
     const divNewsCenter: Element = this.domElement.querySelector('#newsCenter')!;
     divNewsCenter.innerHTML = allElementsNewsCenterHtml;
 
   }
 
   //render PhotosAndVideosGallery list asynchronously
-  
   private _renderPhotosVideosList(items: ISPList[]): void {
    let allPhotosVideosElements = '';
     try {
@@ -458,21 +357,6 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
         let fileExtension: any = fileName.split('.').pop();
 
         let singlePhotosVideosHTMLElement:any = '';
-
-        // // Check if the file is an image or video based on its extension
-        // if (GlobalImageExtensions.AllImageExtensions.some(imageExt => imageExt.ImageExtension === fileExtension)) {
-                           
-        //   singlePhotosVideosHTMLElement = homeWidgetsHtml.imageGallerySingleElement;
-        // } else if (GlobalVideoExtensions.AllVideoExtensions.some(videoExt => videoExt.VideoExtension === fileExtension)) {
-      
-        //   singlePhotosVideosHTMLElement = homeWidgetsHtml.videoGallerySingleElement;
-        // }else  singlePhotosVideosHTMLElement = homeWidgetsHtml.defaultImageGallerySingleElement
-
-        // // Replace placeholder with actual data for main Section image
-        // singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement
-        //   .replace("__KEY_URL_IMGVID__",serverRelativeUrl)
-        //   // .replace("__KEY_DATA_PUBLISHEDBY__", item.Author.Title)
-        //   .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
         const isImage = GlobalImageExtensions.AllImageExtensions.some(imageExt => imageExt.ImageExtension.toLowerCase() === fileExtension);
         const isVideo = GlobalVideoExtensions.AllVideoExtensions.some(videoExt => videoExt.VideoExtension.toLowerCase() === fileExtension);
       
@@ -487,11 +371,11 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
             .replace("__KEY_URL_RESOURCE__", this._ResourceUrl);
         }
           
-          if (index === 0) {
-            singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement.replace("__KEY_CLASS_LARGEIMG__", "gallery-grid-img-lg");
-          } else {
-            singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement.replace("__KEY_CLASS_LARGEIMG__", "");
-          }
+        if (index === 0) {
+          singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement.replace("__KEY_CLASS_LARGEIMG__", "gallery-grid-img-lg");
+        } else {
+          singlePhotosVideosHTMLElement = singlePhotosVideosHTMLElement.replace("__KEY_CLASS_LARGEIMG__", "");
+        }
     
           allPhotosVideosElements += singlePhotosVideosHTMLElement;
         });
@@ -505,53 +389,31 @@ export default class WpAnnouncementWidgetWebPart extends BaseClientSideWebPart<I
     // update the html content of the main section in webpart
     const divPhotosAndVideos: Element = this.domElement.querySelector('#photosAndVideos')!;
     divPhotosAndVideos.innerHTML = allPhotosVideosElements;
-
-   
   }
 
   // Function to get the day in dd format
-private getDay(date: Date): string {
-  const options: Intl.DateTimeFormatOptions = {
-    day: '2-digit',
-      // Gives a two-digit day
-  };
-  return date.toLocaleDateString('en-GB', options);
-}
+  private getDay(date: Date): string {
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+        // Gives a two-digit day
+    };
+    return date.toLocaleDateString('en-GB', options);
+  }
 
-// Function to get the month in short format (e.g., 'Feb')
-private getMonth(date: Date): string {
-  const options: Intl.DateTimeFormatOptions = {
-    month: 'long',  // Gives the three-letter month abbreviation
-  };
-  return date.toLocaleDateString('en-GB', options);
-}
-
-
-
-
+  // Function to get the month in short format (e.g., 'Feb')
+  private getMonth(date: Date): string {
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'long',  // Gives the three-letter month abbreviation
+    };
+    return date.toLocaleDateString('en-GB', options);
+  }
 
   // Render News list asynchronously
   private _renderUpcomingEventsList(items: ISPList[]): void {
     let allElementsUpcomingEventsHtml: string = "";
-    console.log(items);
     try {
       items.forEach((item, index) => {
-
-        console.log(item);
-
         const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
- 
-      
-      const itemId = item.Id; // Ensure you have the correct item ID
- 
-      const attachmentBaseUrl = `${siteUrl}/Lists/UpcomingEvents/Attachments/${itemId}/`;
-      console.log(attachmentBaseUrl);
- 
-      // Parse the JSON string to extract the filename
-      // const pictureData = JSON.parse(item.Image);
-      // const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
-      // console.log(fileName);
-
         let singleUpcomingEventElement = '';
 
         singleUpcomingEventElement = announcementHtml.singleUpcomingEventElement;
@@ -559,32 +421,17 @@ private getMonth(date: Date): string {
         let startDateString = item.StartDate; 
         let endDateString = item.EndDate; 
 
-        console.log(startDateString);
-        console.log(endDateString);
-
         // Convert the approved date string to a Date object
         let startDate = new Date(startDateString);
         let endDate = new Date(endDateString);
-        // const date = new Date(Date.UTC(2025, 1, 19));
-        console.log(startDate)
         let day = this.getDay(startDate)
-        console.log(day)
         let month = this.getMonth(startDate);
         let startTime = this.formatTime(startDate);
         let endTime = this.formatTime(endDate);
 
-        console.log(startTime)
-        console.log(endTime)
-
-       
-
-
-
         // // Replace placeholder with actual data for main Section image
         singleUpcomingEventElement = singleUpcomingEventElement
-        //   .replace("__KEY_DATA_DESC__", item.Description)
           .replace("__KEY_DATA_TITLE__", item.Title)
-          // .replace("__KEY_URL_IMG__",fileName)
           .replace("__KEY_DATA_MONTH__", month)
           .replace("__KEY_DATA_DAY__", day)
           .replace("__KEY_ID_NEWS__",item.Id)
@@ -593,13 +440,7 @@ private getMonth(date: Date): string {
           .replace("__KEY_URL_EVENTDETAILS__",`${siteUrl}/SitePages/EventDetails.aspx?&EventID=${item.Id}`)
           .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
 
-          
-       
-
         allElementsUpcomingEventsHtml += singleUpcomingEventElement; 
-      console.log(allElementsUpcomingEventsHtml);
-      
-      // }
     });
     } catch (error) {
       // Handle error gracefully
@@ -609,17 +450,9 @@ private getMonth(date: Date): string {
     if (allElementsUpcomingEventsHtml == "") { allElementsUpcomingEventsHtml = announcementHtml.noRecord; }
 
     // update the html content of the main section in webpart
-  
-
     const divUpcomingEvents: Element = this.domElement.querySelector('#upcomingEvents')!;
     divUpcomingEvents.innerHTML = allElementsUpcomingEventsHtml;
-
   }
-
-
-
-
-
 
 //   private loadHome():void{
 
@@ -650,29 +483,27 @@ private getMonth(date: Date): string {
 // }
 
 
-private loadHomeJS(): void {
-  // Remove existing instance if it exists
-  const existingScript = document.querySelector('script[src*="home.js"]');
-  if (existingScript) {
-      existingScript.remove();
-  }
+  private loadHomeJS(): void {
+    // Remove existing instance if it exists
+    const existingScript = document.querySelector('script[src*="home.js"]');
+    if (existingScript) {
+        existingScript.remove();
+    }
 
-  // Create new script element with cache busting
-  const script = document.createElement('script');
-  script.src = `${this.context.pageContext.site.absoluteUrl}/SiteAssets/resources/js/home.js?t=${new Date().getTime()}`;
-  script.async = true;
-  
-  // Add to head
-  document.head.appendChild(script);
-}
+    // Create new script element with cache busting
+    const script = document.createElement('script');
+    script.src = `${this.context.pageContext.site.absoluteUrl}/SiteAssets/resources/js/home.js?t=${new Date().getTime()}`;
+    script.async = true;
+    
+    // Add to head
+    document.head.appendChild(script);
+  }
 
   protected onInit(): Promise<void> {
     return this._getEnvironmentMessage().then(message => {
       // this._environmentMessage = message;
     });
   }
-
-
 
   private _getEnvironmentMessage(): Promise<string> {
     if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook

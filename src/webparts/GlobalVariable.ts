@@ -1,4 +1,7 @@
-export const _ResourceUrl: string = "/sites/KeolisIntranetDev/SiteAssets/resources";
+export const SiteName: string = 'IntranetPortal-Dev';
+export const ResourceUrl: string = `/sites/${SiteName}/SiteAssets/resources`;
+
+//export const _ResourceUrl: string = "/sites/KeolisIntranetDev/SiteAssets/resources";
 // export const _SiteUrl: string = 'https://65.2.33.77:8080';
 //export const _DivMessage: string = `<div class="alert alert-success"><strong>No records to display.</strong></div>`;
 export const _DivMessage: string =

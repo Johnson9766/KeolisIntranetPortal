@@ -9,8 +9,9 @@ import type { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 // import styles from './WpTermsAndConditionsWebPart.module.scss';
 import * as strings from 'WpTermsAndConditionsWebPartStrings';
-import {SPComponentLoader} from '@microsoft/sp-loader';
+// import {SPComponentLoader} from '@microsoft/sp-loader';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
+// import { ResourceUrl } from '../GlobalVariable'; 
 
 import TermsAndConditions from './termsAndConditions'
 
@@ -28,11 +29,12 @@ export interface ISPList {
 } 
 
 export default class WpTermsAndConditionsWebPart extends BaseClientSideWebPart<IWpTermsAndConditionsWebPartProps> {
-  private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
+  // private _ResourceUrl: string = ResourceUrl;
   private listName:string='TermsAndConditions';
+
   public async render(): Promise<void> {
     this.domElement.innerHTML = TermsAndConditions.allElementsHtml;
-    this.loadCSS();
+    // this.loadCSS();
 
     let apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items`;
     await this._renderListAsync(apiUrl);
@@ -42,7 +44,6 @@ export default class WpTermsAndConditionsWebPart extends BaseClientSideWebPart<I
   private async _renderListAsync(apiUrl: string): Promise<void> { 
   await this._getListData(apiUrl) 
     .then((response) => { 
-        console.log(response);
         this._renderTermsAndConditions(response.value);    
     }); 
   } 
@@ -52,8 +53,6 @@ export default class WpTermsAndConditionsWebPart extends BaseClientSideWebPart<I
     let allElementsHtml: string = '';
     let contentHtml:string='';
     try {
-          //const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
-      
           items.forEach((item, index) => {
             let sectionNumber = index + 1;
             let title = `${sectionNumber}. ${item.Title}`;
@@ -79,7 +78,6 @@ export default class WpTermsAndConditionsWebPart extends BaseClientSideWebPart<I
     // update the content if there is no records
     if (allElementsHtml == "") { allElementsHtml = TermsAndConditions.noRecord; }
     contentHtml += TermsAndConditions.contentsHtml.replace("__KEY_HTML_CONTENT__",allElementsHtml)
-    console.log(contentHtml);
     // update the html content of the webpart
     const divNewsListing: Element | null = this.domElement.querySelector('#divTermsAndConditions');
     if (divNewsListing !== null) divNewsListing.innerHTML = contentHtml;
@@ -101,42 +99,38 @@ export default class WpTermsAndConditionsWebPart extends BaseClientSideWebPart<I
     }
   }
 
-  private loadHome():void{
+  // private loadHome():void{
 
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
-  }
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+  // }
    
+  // private loadCSS(): void {
+  //     // Load CSS files
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
   
-  private loadCSS(): void {
-      // Load CSS files
-      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
-      SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
-      SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
-      SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
-      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
-      SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
   
-      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
-      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
-      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
-      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
-      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
-      SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+  //     // Load home.js after CSS files are loaded
+  //         setTimeout(this.loadHome,1000);
   
-      // Load home.js after CSS files are loaded
-          setTimeout(this.loadHome,1000);
+  // }
   
-  }
-  
-
   protected onInit(): Promise<void> {
     return this._getEnvironmentMessage().then(message => {
       //this._environmentMessage = message;
     });
   }
-
-
 
   private _getEnvironmentMessage(): Promise<string> {
     if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook

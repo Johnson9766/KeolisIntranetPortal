@@ -12,7 +12,8 @@ import * as strings from 'WpAnnoDetailsWebPartStrings';
 
 import AnnoDetails from './annoDetails';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import {SPComponentLoader} from '@microsoft/sp-loader'
+// import {SPComponentLoader} from '@microsoft/sp-loader'
+import { ResourceUrl, SiteName } from '../GlobalVariable'; 
 
 
 export interface IWpAnnoDetailsWebPartProps {
@@ -27,18 +28,17 @@ export interface ISPList {
   AnnouncementImage:any;
   Description:string;
   Created:any;
-
 } 
 
 export default class WpAnnoDetailsWebPart extends BaseClientSideWebPart<IWpAnnoDetailsWebPartProps> {
 
-  private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
+  private _ResourceUrl: string = ResourceUrl;
   private listName:string='Announcements';
-  private siteName: string = 'IntranetPortal-Dev';
+  private siteName: string = SiteName;
 
   public async render(): Promise<void> {
     this.domElement.innerHTML = AnnoDetails.allElementsHtml.replace(/__KEY_SITE_NAME__/g,this.siteName);
-    this.loadCSS();
+    //this.loadCSS();
  
     const queryStringParams: any = this.getQueryStringParameters();
     // Access specific query string parameters
@@ -49,85 +49,67 @@ export default class WpAnnoDetailsWebPart extends BaseClientSideWebPart<IWpAnnoD
     await this._renderListAsync(apiUrl);
   }
 
-          // render News Details asynchronously
-    private async  _renderSuggestedAnnoDetails(currentNewsID: string): Promise<void> {
-      let allElementsRemainingNewsHtml = '';
-       let singleElementRemainingNewsHtml = '';
-       try {
-       const apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=ID,Title,AnnouncementImage,Created,Author/FirstName,Author/LastName,Description,FileLeafRef,FileRef&$expand=AttachmentFiles,Author&$filter=ID ne ${currentNewsID}&$orderby=ID desc&$top=4&$orderby=Created desc`;
-       await this._getListData(apiUrl) 
-       .then((response) => { 
-           console.log(response);
-           var items :ISPList[] = response.value;
-          //  console.log(items);
-          
-          
-           items.forEach((item, index) => {
-             // Get the current item
-          
-            const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
-            const itemId = item.Id; // Ensure you have the correct item ID
-          
-            const attachmentBaseUrl = `${siteUrl}/Lists/Announcements/Attachments/${itemId}/`;
-            // console.log(attachmentBaseUrl);
-          
-          // alert(4);
-  
-            // Parse the JSON string to extract the filename
-            const pictureData = JSON.parse(item.AnnouncementImage);
-            let imageUrl = `${this._ResourceUrl}/images/default_home/news.png`; 
-  
-            if (pictureData?.fileName) {
-              imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
-            }
-            //const fileName = attachmentBaseUrl + pictureData.fileName; // Extract the actual filename
-            // console.log(fileName);
-          // alert(5);
-            singleElementRemainingNewsHtml = AnnoDetails.remainingNewsHtml;
-          
-            let createdDateString = item.Created;
-          
-            // Convert the approved date string to a Date object
-            let createdDate = new Date(createdDateString);
-            let date = this.formatDate(createdDate)
-            // let time = this.formatTime(createdDate);
-          
-            // console.log(time)
-          
-            singleElementRemainingNewsHtml = singleElementRemainingNewsHtml
-              .replace("__KEY_DATA_TITLE__", item.Title)
-              .replace("__KEY_URL_IMG__", imageUrl)
-              .replace("__KEY_PUBLISHED_DATE__", date)
-              .replace("__KEY_URL_NEWSDETAILS__",`${siteUrl}/SitePages/AnnoDetails.aspx?&AnnoID=${item.Id}`);
-          
-            allElementsRemainingNewsHtml += singleElementRemainingNewsHtml;
-          })
-          
-       }); 
-          } catch (error) {
-            // Handle error gracefully
-            console.error('Error rendering Announcement:', error); 
-          }
-          // if no announcements, then display no record msg
-          if (allElementsRemainingNewsHtml == "") { allElementsRemainingNewsHtml = AnnoDetails.noRecord; }
-      
-          // update the html content of the main section in webpart
-  
-          const divRemainingNewsCenter: Element = this.domElement.querySelector('#remainingAnnoElements')!;
-          divRemainingNewsCenter.innerHTML = allElementsRemainingNewsHtml;
-          console.log(divRemainingNewsCenter);
-  
-        }
+  // render News Details asynchronously
+  private async  _renderSuggestedAnnoDetails(currentNewsID: string): Promise<void> {
+    let allElementsRemainingNewsHtml = '';
+      let singleElementRemainingNewsHtml = '';
+      try {
+        const apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=ID,Title,AnnouncementImage,Created,Author/FirstName,Author/LastName,Description,FileLeafRef,FileRef&$expand=AttachmentFiles,Author&$filter=ID ne ${currentNewsID}&$orderby=ID desc&$top=4&$orderby=Created desc`;
+        await this._getListData(apiUrl) 
+        .then((response) => { 
+            var items :ISPList[] = response.value;
+            items.forEach((item, index) => {
+              // Get the current item
+              const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
+              const itemId = item.Id; // Ensure you have the correct item ID
+              const attachmentBaseUrl = `${siteUrl}/Lists/Announcements/Attachments/${itemId}/`;
+    
+              // Parse the JSON string to extract the filename
+              const pictureData = JSON.parse(item.AnnouncementImage);
+              let imageUrl = `${this._ResourceUrl}/images/default_home/news.png`; 
+    
+              if (pictureData?.fileName) {
+                imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
+              }
 
-  
+              singleElementRemainingNewsHtml = AnnoDetails.remainingNewsHtml;
+            
+              let createdDateString = item.Created;
+            
+              // Convert the approved date string to a Date object
+              let createdDate = new Date(createdDateString);
+              let date = this.formatDate(createdDate)
+            
+              singleElementRemainingNewsHtml = singleElementRemainingNewsHtml
+                .replace("__KEY_DATA_TITLE__", item.Title)
+                .replace("__KEY_URL_IMG__", imageUrl)
+                .replace("__KEY_PUBLISHED_DATE__", date)
+                .replace("__KEY_URL_NEWSDETAILS__",`${siteUrl}/SitePages/AnnoDetails.aspx?&AnnoID=${item.Id}`);
+            
+              allElementsRemainingNewsHtml += singleElementRemainingNewsHtml;
+            }) 
+          }); 
+        } catch (error) {
+          // Handle error gracefully
+          console.error('Error rendering Announcement:', error); 
+        }
+    // if no announcements, then display no record msg
+    if (allElementsRemainingNewsHtml == "") { allElementsRemainingNewsHtml = AnnoDetails.noRecord; }
+
+    // update the html content of the main section in webpart
+
+    const divRemainingNewsCenter: Element = this.domElement.querySelector('#remainingAnnoElements')!;
+    divRemainingNewsCenter.innerHTML = allElementsRemainingNewsHtml;
+
+  }
+
   // render list asynchronously
   private async _renderListAsync(apiUrl: string): Promise<void> { 
     await this._getListData(apiUrl) 
       .then((response) => { 
-          console.log(response);
           this._renderAnnoDetails(response);    
-      }); 
-    } 
+     }); 
+  } 
   
   // function to get data from the sharepoint list
   private async _getListData(apiUrl: string): Promise<any> {
@@ -148,11 +130,8 @@ export default class WpAnnoDetailsWebPart extends BaseClientSideWebPart<IWpAnnoD
   // render Anno Details asynchronously
   private async  _renderAnnoDetails(item: ISPList): Promise<void> {
     let allElementsHtml = '';
-    
 
     try {
-            // console.log(item.Image);
-    
         const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
         let singleElementHtml = AnnoDetails.singleElementHtml;
         const itemId = item.Id; // Ensure you have the correct item ID
@@ -180,24 +159,19 @@ export default class WpAnnoDetailsWebPart extends BaseClientSideWebPart<IWpAnnoD
         const divactiveNewsDesc: Element = this.domElement.querySelector('#annoDescription')!;
         divactiveNewsDesc.innerHTML = item.Description;
           
-        
         } catch (error) {
           // Handle error gracefully
           console.error('Error rendering Announcement:', error); 
         }
-        // update the content if there is no records
-              if (allElementsHtml == "") { allElementsHtml = AnnoDetails.noRecord; }
-              // update the html content of the webpart
-              const divactiveNews: Element = this.domElement.querySelector('#activeAnno')!;
-              divactiveNews.innerHTML = allElementsHtml;
+    // update the content if there is no records
+    if (allElementsHtml == "") { allElementsHtml = AnnoDetails.noRecord; }
+    // update the html content of the webpart
+    const divactiveNews: Element = this.domElement.querySelector('#activeAnno')!;
+    divactiveNews.innerHTML = allElementsHtml;
 
-       
-
-              const divNewsListing: Element | null = this.domElement.querySelector('#divEventDetails');
-              if (divNewsListing !== null) divNewsListing.innerHTML = allElementsHtml;
-
-    
-      }
+    const divNewsListing: Element | null = this.domElement.querySelector('#divEventDetails');
+    if (divNewsListing !== null) divNewsListing.innerHTML = allElementsHtml;
+  }
 
   //helper functions
   // private method extracts query string parameters from the current URL and returns as an object.
@@ -216,7 +190,6 @@ export default class WpAnnoDetailsWebPart extends BaseClientSideWebPart<IWpAnnoD
     return queryStringParams;
   }
 
-  
   private formatDate(date: Date): string {
     const options: Intl.DateTimeFormatOptions = {
       day: '2-digit',
@@ -245,44 +218,38 @@ export default class WpAnnoDetailsWebPart extends BaseClientSideWebPart<IWpAnnoD
     return formattedDate;
   }
 
-  
-  private loadHome():void{
+  // private loadHome():void{
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+  // }
 
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
-  }
- 
+  // private loadCSS(): void {
+  //     // Load CSS files
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
 
-private loadCSS(): void {
-    // Load CSS files
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/event.css`);
 
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/event.css`);
+  //     // Load home.js after CSS files are loaded
+  //         setTimeout(this.loadHome,1000);
 
-    // Load home.js after CSS files are loaded
-        setTimeout(this.loadHome,1000);
-
-}
-
+  // }
 
   protected onInit(): Promise<void> {
     return this._getEnvironmentMessage().then(message => {
       //this._environmentMessage = message;
     });
   }
-
-
 
   private _getEnvironmentMessage(): Promise<string> {
     if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook

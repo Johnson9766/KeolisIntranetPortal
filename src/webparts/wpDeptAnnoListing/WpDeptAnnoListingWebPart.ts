@@ -6,11 +6,12 @@ import {
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import type { IReadonlyTheme } from '@microsoft/sp-component-base';
 
-import {SPComponentLoader} from '@microsoft/sp-loader'
+// import {SPComponentLoader} from '@microsoft/sp-loader'
 
 import * as strings from 'WpDeptAnnoListingWebPartStrings';
 import deptAnnoListing from './DeptAnnoListing';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
+import { ResourceUrl, SiteName } from '../GlobalVariable';
 
 export interface IWpDeptAnnoListingWebPartProps {
   description: string;
@@ -27,10 +28,10 @@ export interface ISPList {
 } 
 export default class WpDeptAnnoListingWebPart extends BaseClientSideWebPart<IWpDeptAnnoListingWebPartProps> {
 
-  private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
+  private _ResourceUrl: string = ResourceUrl;
   private listName:string='DepartmentAnnouncement';
   private deptName : string = "";
-  private siteName: string = 'IntranetPortal-Dev';
+  private siteName: string = SiteName;
 
   public async render(): Promise<void> {
     const queryStringParams: any = this.getQueryStringParameters();
@@ -40,16 +41,11 @@ export default class WpDeptAnnoListingWebPart extends BaseClientSideWebPart<IWpD
 
     this.domElement.innerHTML = deptAnnoListing .deptAllElementsHtml.replace("__KEY_DEPT_NAME__",dept)
     .replace("__KEY_SITE_NAME__",this.siteName);
-    this.loadCSS();
-
-    
+    // this.loadCSS();
 
     const workbenchContent = document.getElementById('workbenchPageContent'); 
-
     if (workbenchContent) { 
-  
       workbenchContent.style.maxWidth = 'none'; 
-  
     } 
   
     let apiUrl = `${this.context.pageContext.web.absoluteUrl}/${dept}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=*,Created,Author/Title&$expand=Author/Id&$orderby=SortOrder asc,Created desc&$filter=ActiveStatus eq 1`;
@@ -60,7 +56,6 @@ export default class WpDeptAnnoListingWebPart extends BaseClientSideWebPart<IWpD
   private async _renderListAsync(apiUrl: string): Promise<void> { 
   await this._getListData(apiUrl) 
     .then((response) => { 
-        console.log(response);
         this._renderAnnoListing(response.value);    
     }); 
   } 
@@ -165,45 +160,38 @@ export default class WpDeptAnnoListingWebPart extends BaseClientSideWebPart<IWpD
     return queryStringParams;
   }
 
+  // private loadHome():void{
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+  // }
 
-  private loadHome():void{
+  // private loadCSS(): void {
+  //     // Load CSS files
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
 
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
-  }
- 
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/event.css`);
 
-private loadCSS(): void {
-    // Load CSS files
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
+  //     // Load home.js after CSS files are loaded
+  //         setTimeout(this.loadHome,1000);
 
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/event.css`);
-
-    // Load home.js after CSS files are loaded
-        setTimeout(this.loadHome,1000);
-
-}
-
-
+  // }
 
   protected onInit(): Promise<void> {
     return this._getEnvironmentMessage().then(message => {
       //this._environmentMessage = message;
     });
   }
-
-
 
   private _getEnvironmentMessage(): Promise<string> {
     if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook

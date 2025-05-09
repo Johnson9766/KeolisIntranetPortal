@@ -12,8 +12,9 @@ import type { IReadonlyTheme } from '@microsoft/sp-component-base';
 import * as strings from 'WpNewsListingWebPartStrings';
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import {SPComponentLoader} from '@microsoft/sp-loader';
+// import {SPComponentLoader} from '@microsoft/sp-loader';
 import NewsListing from './newsListing';
+import { ResourceUrl } from '../GlobalVariable'; 
 
 export interface IWpNewsListingWebPartProps {
   description: string;
@@ -40,12 +41,11 @@ export interface ISPList {
 
 export default class WpNewsListingWebPart extends BaseClientSideWebPart<IWpNewsListingWebPartProps> {
 
-  private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
+  private _ResourceUrl: string =ResourceUrl;
   private listName:string='NewsCenter';
 
   public async render(): Promise<void> {
-
-    this.loadCSS();
+    // this.loadCSS();
     this.domElement.innerHTML = NewsListing.allElementsHtml;
 
     const workbenchContent = document.getElementById('workbenchPageContent');
@@ -62,7 +62,6 @@ export default class WpNewsListingWebPart extends BaseClientSideWebPart<IWpNewsL
   private async _renderListAsync(apiUrl: string): Promise<void> { 
   await this._getListData(apiUrl) 
     .then((response) => { 
-        console.log(response);
         this._renderNewsListing(response.value);    
     }); 
   } 
@@ -88,7 +87,6 @@ export default class WpNewsListingWebPart extends BaseClientSideWebPart<IWpNewsL
     let allElementsHtml: string = '';
     try {
           const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
-      
           items.forEach((item, index) => {
             let singleElementHtml = NewsListing.singleElementHtml;
             const itemId = item.ID; // Ensure you have the correct item ID
@@ -99,7 +97,6 @@ export default class WpNewsListingWebPart extends BaseClientSideWebPart<IWpNewsL
             if (pictureData?.fileName) {
               imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
             }
-            //const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
             let createdDateString = item.Created;
             let createdDate = new Date(createdDateString); // Convert the approved date string to a Date object
             let date = this.formatDate(createdDate);
@@ -150,43 +147,38 @@ export default class WpNewsListingWebPart extends BaseClientSideWebPart<IWpNewsL
     return formattedDate;
   }
 
+  // private loadHome():void{
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+  // }
 
-  private loadHome():void{
+  // private loadCSS(): void {
+  //     // Load CSS files
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
 
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
-  }
- 
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/event.css`);
 
-private loadCSS(): void {
-    // Load CSS files
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
+  //     // Load home.js after CSS files are loaded
+  //         setTimeout(this.loadHome,1000);
 
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/event.css`);
-
-    // Load home.js after CSS files are loaded
-        setTimeout(this.loadHome,1000);
-
-}
+  // }
 
   protected onInit(): Promise<void> {
     return this._getEnvironmentMessage().then(message => {
       //this._environmentMessage = message;
     });
   }
-
-
 
   private _getEnvironmentMessage(): Promise<string> {
     if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook

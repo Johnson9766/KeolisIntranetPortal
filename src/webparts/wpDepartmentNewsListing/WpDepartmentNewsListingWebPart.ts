@@ -8,8 +8,10 @@ import type { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 import * as strings from 'WpDepartmentNewsListingWebPartStrings';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import {SPComponentLoader} from '@microsoft/sp-loader';
+// import {SPComponentLoader} from '@microsoft/sp-loader';
 import NewsListing from './DepartmentNewsListing';
+import { ResourceUrl, SiteName } from '../GlobalVariable';
+
 export interface IWpDepartmentNewsListingWebPartProps {
   description: string;
 }
@@ -31,26 +33,21 @@ export interface ISPList {
   }
 }
 
-
 export default class WpDepartmentNewsListingWebPart extends BaseClientSideWebPart<IWpDepartmentNewsListingWebPartProps> {
 
-  private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
+  private _ResourceUrl: string = ResourceUrl;
   private listName:string='DepartmentNews';
   private deptName : string = "";
-  private siteName: string = 'IntranetPortal-Dev';
+  private siteName: string = SiteName;
   
-
   public async render(): Promise<void> {
-
-    this.loadCSS();
+    // this.loadCSS();
     const queryStringParams: any = this.getQueryStringParameters();
     // Access specific query string parameters
     let dept: string = queryStringParams['dept'];
     this.deptName = dept;
     this.domElement.innerHTML = NewsListing.deptAllElementsHtml.replace("__KEY_DEPT_NAME__",dept)
     .replace("__KEY_SITE_NAME__",this.siteName);
-
-    
 
     const workbenchContent = document.getElementById('workbenchPageContent');
     if (workbenchContent) {
@@ -66,7 +63,6 @@ export default class WpDepartmentNewsListingWebPart extends BaseClientSideWebPar
   private async _renderListAsync(apiUrl: string): Promise<void> { 
   await this._getListData(apiUrl) 
     .then((response) => { 
-        console.log(response);
         this._renderNewsListing(response.value);    
     }); 
   } 
@@ -92,7 +88,6 @@ export default class WpDepartmentNewsListingWebPart extends BaseClientSideWebPar
     let allElementsHtml: string = '';
     try {
           const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
-      
           items.forEach((item, index) => {
             let singleElementHtml = NewsListing.deptSingleElementHtml;
             let imageUrl = `${this._ResourceUrl}/images/department/default/news.png`; 
@@ -103,7 +98,6 @@ export default class WpDepartmentNewsListingWebPart extends BaseClientSideWebPar
             if (pictureData?.fileName) {
               imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
             }
-            //const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
             let createdDateString = item.Created;
             let createdDate = new Date(createdDateString); // Convert the approved date string to a Date object
             let date = this.formatDate(createdDate);
@@ -170,44 +164,39 @@ export default class WpDepartmentNewsListingWebPart extends BaseClientSideWebPar
     return queryStringParams;
   }
 
-
-  private loadHome():void{
-
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
-  }
+  // private loadHome():void{
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+  // }
  
+  // private loadCSS(): void {
+  //     // Load CSS files
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
 
-private loadCSS(): void {
-    // Load CSS files
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/event.css`);
 
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/event.css`);
+  //     // Load home.js after CSS files are loaded
+  //         setTimeout(this.loadHome,1000);
 
-    // Load home.js after CSS files are loaded
-        setTimeout(this.loadHome,1000);
-
-}
+  // }
 
   protected onInit(): Promise<void> {
     return this._getEnvironmentMessage().then(message => {
       //this._environmentMessage = message;
     });
   }
-
-
-
+  
   private _getEnvironmentMessage(): Promise<string> {
     if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook
       return this.context.sdks.microsoftTeams.teamsJs.app.getContext()

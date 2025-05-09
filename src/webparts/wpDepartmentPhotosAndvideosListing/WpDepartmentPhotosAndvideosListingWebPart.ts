@@ -6,9 +6,9 @@ import {
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 
 import * as strings from 'WpDepartmentPhotosAndvideosListingWebPartStrings';
-import { SPComponentLoader } from '@microsoft/sp-loader';
+// import { SPComponentLoader } from '@microsoft/sp-loader';
 import DepatmentPhotoandVideo from './DepartmentPhotoandVideo'
-import { _DivMessage, _ResourceUrl } from '../GlobalVariable';
+import { ResourceUrl, SiteName } from '../GlobalVariable';
 import GlobalVideoExtensions from '../GlobalVideoExtensions';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http-base';
 export interface IWpDepartmentPhotosAndvideosListingWebPartProps {
@@ -20,22 +20,19 @@ export interface ISPList {
 }
 export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClientSideWebPart<IWpDepartmentPhotosAndvideosListingWebPartProps> {
 
-  private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
+  private _ResourceUrl: string = ResourceUrl;
   public listName = "DepartmentPhotosAndVideosGallery";
   public ImgList: HTMLDivElement;
   public allElementsHtml:any=""
-  private siteName: string = 'IntranetPortal-Dev';
+  private siteName: string = SiteName;
   
   protected onInit(): Promise<void> {
-  
-      //this._FirstSite = this.properties.firstSite || this._FirstSite;
-      return super.onInit();   
-   
+    return super.onInit();   
   }  
 
   private _bindMediaClickHandlers(): void {
     const mediaElements = this.domElement.querySelectorAll('.photo-listing-img');
-  
+
     const swiperSlides: string[] = [];
     mediaElements.forEach(el => {
       const src = el.getAttribute('src') || '';
@@ -187,6 +184,7 @@ export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClien
       console.error('Error rendering library files:', error);
     }
   }
+
   private async _getLibraryFiles(): Promise<ISPList[]> {
     const items: ISPList[] = [];
     const queryStringParams: any = this.getQueryStringParameters();
@@ -219,9 +217,7 @@ export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClien
   
     return items;
   }
-  
-  
-  
+
   private _renderFilesToHTML(files: ISPList[]): void {
     this.allElementsHtml = "";
     const container: HTMLElement | null = this.domElement.querySelector('#deptPhotoVideoListings');
@@ -274,10 +270,8 @@ export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClien
     this.ImgList.innerHTML = this.allElementsHtml;
   }
 
- 
- 
   public render(): void {
-    this.loadCSS(); 
+    //this.loadCSS(); 
     const queryStringParams: any = this.getQueryStringParameters();
     // Access specific query string parameters
     let dept: string = queryStringParams['dept'];
@@ -288,9 +282,7 @@ export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClien
       .replace("__KEY_DEPT_NAME__",dept).replace("__KEY_SITE_NAME__",this.siteName);
       this.domElement.innerHTML = DepatmentPhotoandVideo.html;  
       this.ImgList = this.domElement.querySelector("#deptPhotoVideoListings") as HTMLDivElement;
-      console.log("DepatmentPhotoandVideo element:", this.ImgList);
 
-     
       this._renderListItems();    
       setTimeout(() => this._bindMediaClickHandlers(), 500);
       
@@ -422,10 +414,6 @@ export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClien
   // });
   
   
-  
-
-    //console.log(this._isDarkTheme + ': < current theme');
-    //console.log(this._environmentMessage + ': < current environmentMessage');
   }
 
   // private method extracts query string parameters from the current URL and returns as an object.
@@ -444,33 +432,33 @@ export default class WpDepartmentPhotosAndvideosListingWebPart extends BaseClien
     return queryStringParams;
   }
 
-  private loadHome():void{
+  // private loadHome():void{
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+  // }
 
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
-  }
+  // private loadCSS(): void {
+  
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
 
-    private loadCSS(): void {
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/photo-listing.css`);
     
-        SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
-        SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
-        SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
-        SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
-        SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
-        SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
 
-        SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
-        SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
-        SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
-        SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
-        SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
-        SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
-        SPComponentLoader.loadCss(`${this._ResourceUrl}/css/photo-listing.css`);
-      
+  //         setTimeout(this.loadHome,1000);
 
-            setTimeout(this.loadHome,1000);
-
-    }
+  // }
+  
   protected get dataVersion(): Version {
     return Version.parse('1.0');
   }

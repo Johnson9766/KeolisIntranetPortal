@@ -9,9 +9,10 @@ import type { IReadonlyTheme } from '@microsoft/sp-component-base';
 import NewsDetails from './newDetails';
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import {SPComponentLoader} from '@microsoft/sp-loader';
+// import {SPComponentLoader} from '@microsoft/sp-loader';
 // import styles from './WpNewsDetailsWebPart.module.scss';
 import * as strings from 'WpNewsDetailsWebPartStrings';
+import { ResourceUrl, SiteName } from '../GlobalVariable'; 
 
 export interface IWpNewsDetailsWebPartProps {
   description: string;
@@ -36,27 +37,18 @@ export interface ISPList {
   }
 }
 
-
 export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsDetailsWebPartProps> {
-  // private _ResourceUrl: string = '/sites/KeolisIntranetDev/SiteAssets/resources';
-  private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
-
+  private _ResourceUrl: string = ResourceUrl;
   private listName:string='NewsCenter';
-  private siteName: string = 'IntranetPortal-Dev';
+  private siteName: string = SiteName;
 
-
-  // private _isDarkTheme: boolean = false;
-  // private _environmentMessage: string = '';
   public async render(): Promise<void> {
-
     NewsDetails.allElementsHtml = NewsDetails.allElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
     .replace(/__KEY_SITE_NAME__/g,this.siteName);
-    ; 
-      this.domElement.innerHTML = NewsDetails.allElementsHtml;
-      console.log(this.domElement.innerHTML);
-        this.loadCSS();
+    
+    this.domElement.innerHTML = NewsDetails.allElementsHtml;
+    // this.loadCSS();
         
-
     // function call to extract query string parameters
     const queryStringParams: any = this.getQueryStringParameters();
     // Access specific query string parameters
@@ -71,70 +63,49 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
     await this._renderListAsync(apiUrl); 
   }
 
-    //  // Function to format the date as dd mon yyyy
-    private formatDate(date: Date): string {
-      const options: Intl.DateTimeFormatOptions = {
-        day: '2-digit',
-        month: 'long', // 'short' gives the 3-letter month abbreviation
-        year: 'numeric',
-      };
-      // Get the day from the Date object
-      const day = date.getDate();
-  
-      // Determine the suffix for the day
-      let suffix = 'th';  // Default suffix
-      if (day % 10 === 1 && day !== 11) {
-          suffix = 'st';
-      } else if (day % 10 === 2 && day !== 12) {
-          suffix = 'nd';
-      } else if (day % 10 === 3 && day !== 13) {
-          suffix = 'rd';
-      }
-  
-      // Format the date to get the day, month, and year
-      let formattedDate = date.toLocaleDateString('en-GB', options);
-  
-      // Replace the day with day + suffix
-      formattedDate = formattedDate.replace(/\d{2}/, (match) => match + suffix);
-  
-      return formattedDate;
-    }
-  
-      // Function to format time in hh:mm AM/PM format
-    //  private  formatTime(date: Date): string {
-    //   let hours = date.getHours();
-    //   let minutes = date.getMinutes();
-    //   const ampm = hours >= 12 ? 'PM' : 'AM';
-      
-    //   // Convert hours from 24-hour to 12-hour format
-    //   hours = hours % 12;
-    //   hours = hours ? hours : 12; // The hour '0' should be '12'
-      
-    //   // Pad minutes with leading zero if needed
-    //   let minutesStr = minutes < 10 ? '0' + minutes.toString() : minutes.toString();  // Ensure minutes is a string
-      
-    //   return `${hours}:${minutesStr} ${ampm}`;
-    // }
+  // Function to format the date as dd mon yyyy
+  private formatDate(date: Date): string {
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+      month: 'long', // 'short' gives the 3-letter month abbreviation
+      year: 'numeric',
+    };
+    // Get the day from the Date object
+    const day = date.getDate();
 
-//returns the text as same as in the list along with the spaces
-    private _getFormattedText(text: string): string {
- 
-      const tempElement = document.createElement("div");
-   
-      // Set the innerHTML to the provided HTML content
-      tempElement.innerHTML = text || "";
-   
-      // Remove unnecessary elements like <div>, <span> with id attributes
-      const cleanContent = tempElement.innerHTML
-          .replace(/<div[^>]*>/g, '')  // Remove all <div> tags
-          .replace(/<\/div>/g, '')     // Remove closing </div> tags
-          .replace(/id="[^"]*"/g, '')  // Remove all "id" attributes
-          .replace(/<\/?span[^>]*>/g, ''); // Remove <span> tags but keep content
-   
-      console.log(cleanContent.trim());
-   
-      return cleanContent.trim();  // Return the cleaned content
+    // Determine the suffix for the day
+    let suffix = 'th';  // Default suffix
+    if (day % 10 === 1 && day !== 11) {
+        suffix = 'st';
+    } else if (day % 10 === 2 && day !== 12) {
+        suffix = 'nd';
+    } else if (day % 10 === 3 && day !== 13) {
+        suffix = 'rd';
     }
+
+    // Format the date to get the day, month, and year
+    let formattedDate = date.toLocaleDateString('en-GB', options);
+
+    // Replace the day with day + suffix
+    formattedDate = formattedDate.replace(/\d{2}/, (match) => match + suffix);
+
+    return formattedDate;
+  }
+
+  //returns the text as same as in the list along with the spaces
+  private _getFormattedText(text: string): string {
+    const tempElement = document.createElement("div");
+    // Set the innerHTML to the provided HTML content
+    tempElement.innerHTML = text || "";
+  
+    // Remove unnecessary elements like <div>, <span> with id attributes
+    const cleanContent = tempElement.innerHTML
+        .replace(/<div[^>]*>/g, '')  // Remove all <div> tags
+        .replace(/<\/div>/g, '')     // Remove closing </div> tags
+        .replace(/id="[^"]*"/g, '')  // Remove all "id" attributes
+        .replace(/<\/?span[^>]*>/g, ''); // Remove <span> tags but keep content
+    return cleanContent.trim();  // Return the cleaned content
+  }
 
   // private method extracts query string parameters from the current URL and returns as an object.
   private getQueryStringParameters(): any {
@@ -156,7 +127,6 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
  private async _renderListAsync(apiUrl: string): Promise<void> { 
   await this._getListData(apiUrl) 
     .then((response) => { 
-        console.log(response);
         this._renderNewsDetails(response);    
     }); 
   } 
@@ -185,15 +155,9 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
      let newsDescriptionHtml = '';
 
     try {
-            // console.log(item.Image);
-    
           const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
-     
-          
           const itemId = item.ID; // Ensure you have the correct item ID
-     
           const attachmentBaseUrl = `${siteUrl}/Lists/NewsCenter/Attachments/${itemId}/`;
-          // console.log(attachmentBaseUrl);
      
           // Parse the JSON string to extract the filename
           const pictureData = JSON.parse(item.NewsImage);
@@ -202,62 +166,48 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
           if (pictureData?.fileName) {
             imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
           }
-          // const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
-          // console.log(fileName);
-           
-    
-            let createdDateString = item.Created;
-            // console.log(item.Created); 
-    
-            // Convert the approved date string to a Date object
-            let createdDate = new Date(createdDateString);
-            let date = this.formatDate(createdDate)
-            // let time = this.formatTime(createdDate);
+          let createdDateString = item.Created;
+  
+          // Convert the approved date string to a Date object
+          let createdDate = new Date(createdDateString);
+          let date = this.formatDate(createdDate)
 
-            // Reading Time Calculation
-            const eventDetailsText = item.MainContent || '';
-            const wordCount = eventDetailsText.trim().split(/\s+/).length;
-            const readingSpeedWPM = 200;
-            const estimatedReadingTimeMin:any = Math.ceil(wordCount / readingSpeedWPM);
-    
-            // console.log(time)
-            // // Replace placeholder with actual data for main Section image
-            newsElementHtml = NewsDetails.singleElementHtml
-            
-              
+          // Reading Time Calculation
+          const eventDetailsText = item.MainContent || '';
+          const wordCount = eventDetailsText.trim().split(/\s+/).length;
+          const readingSpeedWPM = 200;
+          const estimatedReadingTimeMin:any = Math.ceil(wordCount / readingSpeedWPM);
+  
+          // // Replace placeholder with actual data for main Section image
+          newsElementHtml = NewsDetails.singleElementHtml
               .replace("__KEY_DATA_TITLE__", item.Title)
               .replace("__KEY_URL_IMG__",imageUrl)
               .replace("__KEY_PUBLISHED_DATE__", date)
               .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
               .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
 
-              let content = this._getFormattedText(item.MainContent);
+          let content = this._getFormattedText(item.MainContent);
 
-              newsDescriptionHtml = NewsDetails.singleElementNewsDescription
-              .replace("__KEY_DATA_NEWSDECRIPTION__", content)
+          newsDescriptionHtml = NewsDetails.singleElementNewsDescription.replace("__KEY_DATA_NEWSDECRIPTION__", content);
     
-            allElementsNewsHtml += newsElementHtml; 
-            allElementDesc += newsDescriptionHtml; 
-        
+          allElementsNewsHtml += newsElementHtml; 
+          allElementDesc += newsDescriptionHtml; 
         } catch (error) {
           // Handle error gracefully
           console.error('Error rendering Announcement:', error); 
         }
-        // if no announcements, then display no record msg
-        if (allElementsNewsHtml == "") { allElementsNewsHtml = NewsDetails.noRecord; }
-    
-        // update the html content of the main section in webpart
+    // if no announcements, then display no record msg
+    if (allElementsNewsHtml == "") { allElementsNewsHtml = NewsDetails.noRecord; }
 
-        const divactiveNews: Element = this.domElement.querySelector('#activeNews')!;
-        divactiveNews.innerHTML = allElementsNewsHtml;
+    // update the html content of the main section in webpart
+    const divactiveNews: Element = this.domElement.querySelector('#activeNews')!;
+    divactiveNews.innerHTML = allElementsNewsHtml;
 
-        const divactiveNewsDesc: Element = this.domElement.querySelector('#newsDescription')!;
-        divactiveNewsDesc.innerHTML = allElementDesc;
+    const divactiveNewsDesc: Element = this.domElement.querySelector('#newsDescription')!;
+    divactiveNewsDesc.innerHTML = allElementDesc;
+  }
 
-    
-      }
-
-        // render News Details asynchronously
+  // render News Details asynchronously
   private async  _renderSuggestedNewsDetails(currentNewsID: string): Promise<void> {
     let allElementsRemainingNewsHtml = '';
      let singleElementRemainingNewsHtml = '';
@@ -265,21 +215,12 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
      const apiUrl = `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=ID,Title,NewsImage,Created,Author/FirstName,Author/LastName,MainContent,FileLeafRef,FileRef&$expand=AttachmentFiles,Author&$filter=ID ne ${currentNewsID}&$orderby=ID desc&$top=4&$orderby=Created desc`;
      await this._getListData(apiUrl) 
      .then((response) => { 
-         console.log(response);
          var items :ISPList[] = response.value;
-        //  console.log(items);
-        
-        
          items.forEach((item, index) => {
            // Get the current item
-        
           const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
           const itemId = item.ID; // Ensure you have the correct item ID
-        
           const attachmentBaseUrl = `${siteUrl}/Lists/NewsCenter/Attachments/${itemId}/`;
-          // console.log(attachmentBaseUrl);
-        
-        // alert(4);
 
           // Parse the JSON string to extract the filename
           const pictureData = JSON.parse(item.NewsImage);
@@ -288,9 +229,6 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
           if (pictureData?.fileName) {
             imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
           }
-          //const fileName = attachmentBaseUrl + pictureData.fileName; // Extract the actual filename
-          // console.log(fileName);
-        // alert(5);
           singleElementRemainingNewsHtml = NewsDetails.remainingNewsHtml;
         
           let createdDateString = item.Created;
@@ -298,9 +236,6 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
           // Convert the approved date string to a Date object
           let createdDate = new Date(createdDateString);
           let date = this.formatDate(createdDate)
-          // let time = this.formatTime(createdDate);
-        
-          // console.log(time)
         
           singleElementRemainingNewsHtml = singleElementRemainingNewsHtml
             .replace("__KEY_DATA_TITLE__", item.Title)
@@ -310,66 +245,51 @@ export default class WpNewsDetailsWebPart extends BaseClientSideWebPart<IWpNewsD
         
           allElementsRemainingNewsHtml += singleElementRemainingNewsHtml;
         })
-        
      }); 
-        } catch (error) {
-          // Handle error gracefully
-          console.error('Error rendering Announcement:', error); 
-        }
-        // if no announcements, then display no record msg
-        if (allElementsRemainingNewsHtml == "") { allElementsRemainingNewsHtml = NewsDetails.noRecord; }
-    
-        // update the html content of the main section in webpart
+    } catch (error) {
+      // Handle error gracefully
+      console.error('Error rendering Announcement:', error); 
+    }
+    // if no announcements, then display no record msg
+    if (allElementsRemainingNewsHtml == "") { allElementsRemainingNewsHtml = NewsDetails.noRecord; }
 
-        const divRemainingNewsCenter: Element = this.domElement.querySelector('#remainingNewsElements')!;
-        divRemainingNewsCenter.innerHTML = allElementsRemainingNewsHtml;
-        console.log(divRemainingNewsCenter);
+    // update the html content of the main section in webpart
+    const divRemainingNewsCenter: Element = this.domElement.querySelector('#remainingNewsElements')!;
+    divRemainingNewsCenter.innerHTML = allElementsRemainingNewsHtml;
 
-      }
-    
-    
-
-  // function to get publishing image for News Details 
-  
-
-  private loadHome():void{
-
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
   }
+  
+  // private loadHome():void{
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+  // }
  
+  // private loadCSS(): void {
+  //     // Load CSS files
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
 
-private loadCSS(): void {
-    // Load CSS files
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
 
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+  //     // Load home.js after CSS files are loaded
+  //         setTimeout(this.loadHome,1000);
 
-    // Load home.js after CSS files are loaded
-        setTimeout(this.loadHome,1000);
-
-}
-
-
-
+  // }
 
   protected onInit(): Promise<void> {
     return this._getEnvironmentMessage().then(message => {
       // this._environmentMessage = message;
     });
   }
-
-
 
   private _getEnvironmentMessage(): Promise<string> {
     if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook

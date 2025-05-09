@@ -8,8 +8,9 @@ import type { IReadonlyTheme } from '@microsoft/sp-component-base';
 import NewsDetails from './DepartmentNewsDetails';
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import {SPComponentLoader} from '@microsoft/sp-loader';
+// import {SPComponentLoader} from '@microsoft/sp-loader';
 import * as strings from 'WpDepartmentNewsDetailsWebPartStrings';
+import { ResourceUrl, SiteName } from '../GlobalVariable';
 
 export interface IWpDepartmentNewsDetailsWebPartProps {
   description: string;
@@ -34,15 +35,11 @@ export interface ISPList {
 
 export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPart<IWpDepartmentNewsDetailsWebPartProps> {
 
-  private _ResourceUrl: string = '/sites/IntranetPortal-Dev/SiteAssets/resources';
-
+  private _ResourceUrl: string = ResourceUrl;
   private listName:string='DepartmentNews'
   private deptName : string = "";
-  private siteName: string = 'IntranetPortal-Dev';
+  private siteName: string = SiteName;
 
-
-  // private _isDarkTheme: boolean = false;
-  // private _environmentMessage: string = '';
   public async render(): Promise<void> {
     // function call to extract query string parameters
     const queryStringParams: any = this.getQueryStringParameters();
@@ -51,14 +48,11 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
     let dept: string = queryStringParams['dept'];
 
     NewsDetails.deptallElementsHtml = NewsDetails.deptallElementsHtml.replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl)
-    .replace(/__KEY_SITE_NAME__/g,this.siteName)
-    .replace(/__KEY_DEPT_NAME__/g,dept); 
-      this.domElement.innerHTML = NewsDetails.deptallElementsHtml;
-      console.log(this.domElement.innerHTML);
-        this.loadCSS();
-        
+      .replace(/__KEY_SITE_NAME__/g,this.siteName)
+      .replace(/__KEY_DEPT_NAME__/g,dept); 
 
-    
+    this.domElement.innerHTML = NewsDetails.deptallElementsHtml;
+    //this.loadCSS();
     this.deptName =dept;
     this._renderSuggestedNewsDetails(ID);
 
@@ -70,54 +64,50 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
     await this._renderListAsync(apiUrl); 
   }
 
-    //  // Function to format the date as dd mon yyyy
-    private formatDate(date: Date): string {
-      const options: Intl.DateTimeFormatOptions = {
-        day: '2-digit',
-        month: 'long', // 'short' gives the 3-letter month abbreviation
-        year: 'numeric',
-      };
-      // Get the day from the Date object
-      const day = date.getDate();
-  
-      // Determine the suffix for the day
-      let suffix = 'th';  // Default suffix
-      if (day % 10 === 1 && day !== 11) {
-          suffix = 'st';
-      } else if (day % 10 === 2 && day !== 12) {
-          suffix = 'nd';
-      } else if (day % 10 === 3 && day !== 13) {
-          suffix = 'rd';
-      }
-  
-      // Format the date to get the day, month, and year
-      let formattedDate = date.toLocaleDateString('en-GB', options);
-  
-      // Replace the day with day + suffix
-      formattedDate = formattedDate.replace(/\d{2}/, (match) => match + suffix);
-  
-      return formattedDate;
+  // Function to format the date as dd mon yyyy
+  private formatDate(date: Date): string {
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+      month: 'long', // 'short' gives the 3-letter month abbreviation
+      year: 'numeric',
+    };
+    // Get the day from the Date object
+    const day = date.getDate();
+
+    // Determine the suffix for the day
+    let suffix = 'th';  // Default suffix
+    if (day % 10 === 1 && day !== 11) {
+        suffix = 'st';
+    } else if (day % 10 === 2 && day !== 12) {
+        suffix = 'nd';
+    } else if (day % 10 === 3 && day !== 13) {
+        suffix = 'rd';
     }
+
+    // Format the date to get the day, month, and year
+    let formattedDate = date.toLocaleDateString('en-GB', options);
+
+    // Replace the day with day + suffix
+    formattedDate = formattedDate.replace(/\d{2}/, (match) => match + suffix);
+
+    return formattedDate;
+  }
   
     
-    private _getFormattedText(text: string): string {
- 
-      const tempElement = document.createElement("div");
-   
-      // Set the innerHTML to the provided HTML content
-      tempElement.innerHTML = text || "";
-   
-      // Remove unnecessary elements like <div>, <span> with id attributes
-      const cleanContent = tempElement.innerHTML
-          .replace(/<div[^>]*>/g, '')  // Remove all <div> tags
-          .replace(/<\/div>/g, '')     // Remove closing </div> tags
-          .replace(/id="[^"]*"/g, '')  // Remove all "id" attributes
-          .replace(/<\/?span[^>]*>/g, ''); // Remove <span> tags but keep content
-   
-      console.log(cleanContent.trim());
-   
-      return cleanContent.trim();  // Return the cleaned content
-    }
+  private _getFormattedText(text: string): string {
+    const tempElement = document.createElement("div");
+    // Set the innerHTML to the provided HTML content
+    tempElement.innerHTML = text || "";
+  
+    // Remove unnecessary elements like <div>, <span> with id attributes
+    const cleanContent = tempElement.innerHTML
+        .replace(/<div[^>]*>/g, '')  // Remove all <div> tags
+        .replace(/<\/div>/g, '')     // Remove closing </div> tags
+        .replace(/id="[^"]*"/g, '')  // Remove all "id" attributes
+        .replace(/<\/?span[^>]*>/g, ''); // Remove <span> tags but keep content
+    
+    return cleanContent.trim();  // Return the cleaned content
+  }
 
   // private method extracts query string parameters from the current URL and returns as an object.
   private getQueryStringParameters(): any {
@@ -139,7 +129,6 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
  private async _renderListAsync(apiUrl: string): Promise<void> { 
   await this._getListData(apiUrl) 
     .then((response) => { 
-        console.log(response);
         this._renderNewsDetails(response);    
     }); 
   } 
@@ -164,81 +153,66 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
   private async  _renderNewsDetails(item: ISPList): Promise<void> {
     let allElementsNewsHtml = '';
     let allElementDesc = '';
-     let newsElementHtml = '';
-     let newsDescriptionHtml = '';
+    let newsElementHtml = '';
+    let newsDescriptionHtml = '';
 
     try {
-            // console.log(item.Image);
-    
-          const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
+      const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
+      const itemId = item.ID; // Ensure you have the correct item ID
      
-          
-          const itemId = item.ID; // Ensure you have the correct item ID
-     
-          const attachmentBaseUrl = `${siteUrl}/${this.deptName}/Lists/DepartmentNews/Attachments/${itemId}/`;
-          // console.log(attachmentBaseUrl);
-          let imageUrl = `${this._ResourceUrl}/images/department/default/news.png`; 
-     
-          // Parse the JSON string to extract the filename
-          const pictureData = JSON.parse(item.NewsImage);
-          if (pictureData?.fileName) {
-            imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
-          }
-          //const fileName = attachmentBaseUrl+pictureData.fileName; // Extract the actual filename
-           
-    
-            let createdDateString = item.Created;
-            // console.log(item.Created); 
-    
-            // Convert the approved date string to a Date object
-            let createdDate = new Date(createdDateString);
-            let date = this.formatDate(createdDate)
-            // let time = this.formatTime(createdDate);
+      const attachmentBaseUrl = `${siteUrl}/${this.deptName}/Lists/DepartmentNews/Attachments/${itemId}/`;
+      let imageUrl = `${this._ResourceUrl}/images/department/default/news.png`; 
 
-            // Reading Time Calculation
-            const eventDetailsText = item.MainContent || '';
-            const wordCount = eventDetailsText.trim().split(/\s+/).length;
-            const readingSpeedWPM = 200;
-            const estimatedReadingTimeMin:any = Math.ceil(wordCount / readingSpeedWPM);
-    
-            // console.log(time)
-            // // Replace placeholder with actual data for main Section image
-            newsElementHtml = NewsDetails.deptsingleElementHtml
-            
-              
-              .replace("__KEY_DATA_TITLE__", item.Title)
-              .replace("__KEY_URL_IMG__",imageUrl)
-              .replace("__KEY_PUBLISHED_DATE__", date)
-              .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
-              .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
-
-              let content = this._getFormattedText(item.MainContent);
-
-              newsDescriptionHtml = NewsDetails.deptsingleElementNewsDescription
-              .replace("__KEY_DATA_NEWSDECRIPTION__", content)
-    
-            allElementsNewsHtml += newsElementHtml; 
-            allElementDesc += newsDescriptionHtml; 
-        
-        } catch (error) {
-          // Handle error gracefully
-          console.error('Error rendering Announcement:', error); 
-        }
-        // if no announcements, then display no record msg
-        if (allElementsNewsHtml == "") { allElementsNewsHtml = NewsDetails.noRecord; }
-    
-        // update the html content of the main section in webpart
-
-        const divactiveNews: Element = this.domElement.querySelector('#deptActiveNews')!;
-        divactiveNews.innerHTML = allElementsNewsHtml;
-
-        const divactiveNewsDesc: Element = this.domElement.querySelector('#deptNewsDescription')!;
-        divactiveNewsDesc.innerHTML = allElementDesc;
-
-    
+      // Parse the JSON string to extract the filename
+      const pictureData = JSON.parse(item.NewsImage);
+      if (pictureData?.fileName) {
+        imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
       }
 
-        // render News Details asynchronously
+      let createdDateString = item.Created;
+
+      // Convert the approved date string to a Date object
+      let createdDate = new Date(createdDateString);
+      let date = this.formatDate(createdDate)
+
+      // Reading Time Calculation
+      const eventDetailsText = item.MainContent || '';
+      const wordCount = eventDetailsText.trim().split(/\s+/).length;
+      const readingSpeedWPM = 200;
+      const estimatedReadingTimeMin:any = Math.ceil(wordCount / readingSpeedWPM);
+    
+      // Replace placeholder with actual data for main Section image
+      newsElementHtml = NewsDetails.deptsingleElementHtml
+        .replace("__KEY_DATA_TITLE__", item.Title)
+        .replace("__KEY_URL_IMG__",imageUrl)
+        .replace("__KEY_PUBLISHED_DATE__", date)
+        .replace("__KEY_READINGTIME_TIME__",estimatedReadingTimeMin)
+        .replace(/__KEY_URL_RESOURCE__/g,this._ResourceUrl);
+
+        let content = this._getFormattedText(item.MainContent);
+
+        newsDescriptionHtml = NewsDetails.deptsingleElementNewsDescription
+        .replace("__KEY_DATA_NEWSDECRIPTION__", content)
+
+      allElementsNewsHtml += newsElementHtml; 
+      allElementDesc += newsDescriptionHtml; 
+        
+    } catch (error) {
+      // Handle error gracefully
+      console.error('Error rendering Announcement:', error); 
+    }
+    // if no announcements, then display no record msg
+    if (allElementsNewsHtml == "") { allElementsNewsHtml = NewsDetails.noRecord; }
+
+    // update the html content of the main section in webpart
+    const divactiveNews: Element = this.domElement.querySelector('#deptActiveNews')!;
+    divactiveNews.innerHTML = allElementsNewsHtml;
+
+    const divactiveNewsDesc: Element = this.domElement.querySelector('#deptNewsDescription')!;
+    divactiveNewsDesc.innerHTML = allElementDesc;
+  }
+
+  // render News Details asynchronously
   private async  _renderSuggestedNewsDetails(currentNewsID: string): Promise<void> {
     let allElementsRemainingNewsHtml = '';
      let singleElementRemainingNewsHtml = '';
@@ -246,31 +220,20 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
      const apiUrl = `${this.context.pageContext.web.absoluteUrl}/${this.deptName}/_api/web/lists/GetByTitle('${this.listName}')/items?$select=ID,Title,NewsImage,Created,Author/FirstName,Author/LastName,MainContent,FileLeafRef,FileRef&$expand=AttachmentFiles,Author&$filter=ID ne ${currentNewsID}&$orderby=ID desc&$top=4`;
      await this._getListData(apiUrl) 
      .then((response) => { 
-         console.log(response);
          var items :ISPList[] = response.value;
-        //  console.log(items);
-        
-        
          items.forEach((item, index) => {
            // Get the current item
-        
           const siteUrl = this.context.pageContext.site.absoluteUrl; // Get this dynamically if needed
           const itemId = item.ID; // Ensure you have the correct item ID
-        
           const attachmentBaseUrl = `${siteUrl}/${this.deptName}/Lists/DepartmentNews/Attachments/${itemId}/`;
-          // console.log(attachmentBaseUrl);
           let imageUrl = `${this._ResourceUrl}/images/department/default/news.png`; 
-        
-        // alert(4);
 
           // Parse the JSON string to extract the filename
           const pictureData = JSON.parse(item.NewsImage);
           if (pictureData?.fileName) {
             imageUrl = `${attachmentBaseUrl}${pictureData.fileName}`;
           }
-          //const fileName = attachmentBaseUrl + pictureData.fileName; // Extract the actual filename
-          // console.log(fileName);
-        // alert(5);
+         
           singleElementRemainingNewsHtml = NewsDetails.deptremainingNewsHtml;
         
           let createdDateString = item.Created;
@@ -278,9 +241,6 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
           // Convert the approved date string to a Date object
           let createdDate = new Date(createdDateString);
           let date = this.formatDate(createdDate)
-          // let time = this.formatTime(createdDate);
-        
-          // console.log(time)
         
           singleElementRemainingNewsHtml = singleElementRemainingNewsHtml
             .replace("__KEY_DATA_TITLE__", item.Title)
@@ -292,64 +252,49 @@ export default class WpDepartmentNewsDetailsWebPart extends BaseClientSideWebPar
         })
         
      }); 
-        } catch (error) {
-          // Handle error gracefully
-          console.error('Error rendering Announcement:', error); 
-        }
-        // if no announcements, then display no record msg
-        if (allElementsRemainingNewsHtml == "") { allElementsRemainingNewsHtml = NewsDetails.noRecord; }
-    
-        // update the html content of the main section in webpart
+    } catch (error) {
+      // Handle error gracefully
+      console.error('Error rendering Announcement:', error); 
+    }
+    // if no announcements, then display no record msg
+    if (allElementsRemainingNewsHtml == "") { allElementsRemainingNewsHtml = NewsDetails.noRecord; }
 
-        const divRemainingNewsCenter: Element = this.domElement.querySelector('#deptRemainingNewsElements')!;
-        divRemainingNewsCenter.innerHTML = allElementsRemainingNewsHtml;
-        console.log(divRemainingNewsCenter);
-
-      }
-    
-    
-
-  // function to get publishing image for News Details 
-  
-
-  private loadHome():void{
-
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
-    SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+    // update the html content of the main section in webpart
+    const divRemainingNewsCenter: Element = this.domElement.querySelector('#deptRemainingNewsElements')!;
+    divRemainingNewsCenter.innerHTML = allElementsRemainingNewsHtml;
   }
  
+  // private loadHome():void{
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/common.js`);
+  //   SPComponentLoader.loadScript(`/sites/IntranetPortal-Dev/SiteAssets/resources/js/home.js`);        
+  // }
+ 
+  // private loadCSS(): void {
+  //     // Load CSS files
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
+  //     SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
 
-private loadCSS(): void {
-    // Load CSS files
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/sp-custom.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-3.6.0.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/jquery-ui.js`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/swiper-bundle.min.js`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/bootstrap.min.css`);
-    SPComponentLoader.loadScript(`${this._ResourceUrl}/js/bootstrap.bundle.min.js`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
+  //     SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
 
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/swiper-bundle.min.css`);  
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/jquery-ui.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/variable.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/news.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/custom.css`);
-    SPComponentLoader.loadCss(`${this._ResourceUrl}/css/home.css`);
+  //     // Load home.js after CSS files are loaded
+  //         setTimeout(this.loadHome,1000);
 
-    // Load home.js after CSS files are loaded
-        setTimeout(this.loadHome,1000);
-
-}
-
-
-
+  // }
 
   protected onInit(): Promise<void> {
     return this._getEnvironmentMessage().then(message => {
       // this._environmentMessage = message;
     });
   }
-
-
 
   private _getEnvironmentMessage(): Promise<string> {
     if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook
